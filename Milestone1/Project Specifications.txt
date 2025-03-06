@@ -1,0 +1,67 @@
+﻿Project Specifications
+
+
+Overview: The game is called Bullshi*t, a game about bluffing your opponents to victory. The lobbies will consist of 3-8 players. A single deck of 52 cards is dealt to all participants. The goal of the game is to get rid of all your cards. The order of the cards that are supposed to be put down are in a repeating order of card ranking from A to K.  The person who has the Ace of Spades goes first. Players have the ability to bluff what they put down for their turn. For example, the person who is supposed to play the ace of spades first can claim to put down 3 aces but in reality it’s one ace and 2 other cards. The goal of the game is to get rid of all your cards. Whoever can get rid of all of their cards first, wins.
+
+Inspiration: https://www.instructables.com/How-to-play-BSA-game-of-bluffing/
+
+Required features:
+        Player registration and authentication:
+* Players will need to create an account with a password to login and play.
+* Players (if logged in) should be able to logout.
+
+
+Lobby System: (Once logged in) 
+* The lobby view will have buttons to create or join games.
+* The lobby view shall show a list of all of the games already created and waiting to be started.
+   * Pending games should show the current number of players.
+   * They should also indicate if it is a password protected game or not.
+* Once a game has started, it will disappear from the lobby view.
+* Hosting/Creating a game: (Player clicks “Create game”)
+   * If a player decides to click “Create game”, a new game lobby will be created.
+      * The host can assign a name to their game as long as it isn’t the same name as an existing game.
+      * Hosts can assign a password to their game.
+   * A game cannot be started without at least 3 players.
+   * There is a maximum of 8 players per game.
+   * Once there are 3-8 players, the host can start the game.
+* Joining a game: (Player clicks “Join game”)
+   * A player can click on an existing game lobby and join it by selecting the specific game and clicking “Join game”.
+   * If the selected game requires a password, the player should be able to enter the password.
+      * If the wrong password is entered, the player will not be able to join the game lobby.
+      * If the correct password is entered, the player will successfully join the game lobby.
+   * A player who has joined a game shall have the ability to leave the game lobby before the countdown timer starts.
+
+
+        Game flow
+* Game start: (Host clicks “Start game”)
+   * A 5 second countdown will ensue.
+   * Once the game countdown has started
+      * No additional players can be added.
+      * Players cannot leave the lobby.
+   * A new window will open up with the current game.
+   * There will be a chat system to allow players to send messages to the game lobby.
+   * When the game starts, the entire deck of cards will be dealt to all of the players, starting with a randomly selected player.
+   * A player can only view the cards that they possess and no one else’s.
+   * A player can choose to sort their cards by rank or keep them in the order that they are dealt.
+   * There will be a stack of cards to hold the cards that have been played.
+* Player turn:        
+   * During a player’s turn, players can decide to place between 1 and 4 cards onto the stack. 
+      * The player who holds the ace of spades will have the first turn and that card must be played.
+      * A player can select any combination of their cards to place onto the stack.
+      * Selected cards will be placed onto the shared stack.
+   * There will be a 15 second time limit per turn.
+* Calling a bluff:
+   * Once a turn has been played, any player can call a bluff on another player who had just played their cards.
+      * When a bluff is called, the cards placed on the stack from the previous turn will be verified to match what they claimed to put down.
+         * If a bluff is called correctly, the player who put the cards down will have the entire stack of cards added to their hand.
+         * If a bluff is called incorrectly, the player who called the bluff will have the entire stack of cards added to their hand.
+* Game completion:
+   * Once a player has 0 cards, that player is declared the winner and the game ends.
+   * The game winner will be displayed.
+
+
+Technologies used:
+* Render
+* Node.js
+* Express
+* Postgres
