@@ -7,6 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "start": "ts-node src/server/index.ts",
     "start:dev": "nodemon --exec ts-node src/server/index.ts",
     "prepare": "husky",
     "prettier": "prettier --write ./src"

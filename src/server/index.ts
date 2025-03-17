@@ -4,21 +4,22 @@ import express from "express";
 import rootRoutes from "./routes/root";
 import httpErrors from "http-errors";
 import morgan from "morgan";
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-const app = express();
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-app.use(express.static(path.join(process.cwd(), "public")));
-app.set("views", path.join(process.cwd(), "src", "server", "templates"));
+app.use(express.static(path.join(process.cwd(), "src", "public")));
+app.set("views", path.join(process.cwd(), "src", "server", "views"));
 app.set("view engine", "ejs");
 
 app.use("/", rootRoutes);
+
 app.use("/test", () => {});
 
 app.use((_request, _response, next) => {
