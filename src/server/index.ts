@@ -2,12 +2,15 @@ import * as path from "path";
 
 import express from "express";
 import rootRoutes from "./routes/root";
+import testRouter from "./routes/test";
 import httpErrors from "http-errors";
 import morgan from "morgan";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
+import dotenv from "dotenv";
 dotenv.config();
+
+console.log("Database URL:", process.env.DATABASE_URL);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +25,8 @@ app.set("view engine", "ejs");
 
 app.use("/", rootRoutes);
 
-app.use("/test", () => {});
+app.use("/test", testRouter);
+app.use("/promise_version", testRouter);
 
 app.use((_request, _response, next) => {
   next(httpErrors(404));

@@ -7,9 +7,12 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server/index.ts",
+    "start": "NODE_ENV=production ts-node src/server/index.ts",
     "start:dev": "nodemon --exec ts-node src/server/index.ts",
     "prepare": "husky",
+    "db:create": "node-pg-migrate create -j ts --",
+    "db:migrate": "ts-node node_modules/node-pg-migrate/bin/node-pg-migrate.js up -j ts",
+    "db:rollback": "ts-node node_modules/node-pg-migrate/bin/node-pg-migrate.js down -j ts",
     "prettier": "prettier --write ./src"
   },
   "author": "",
@@ -21,7 +24,11 @@
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
-    "node": "^23.9.0"
+    "node": "^23.9.0",
+    "node-pg-migrate": "^7.9.1",
+    "pg": "^8.14.1",
+    "pg-promise": "^11.13.0",
+    "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
