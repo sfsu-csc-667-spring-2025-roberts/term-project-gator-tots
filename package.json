@@ -8,7 +8,10 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production ts-node src/server/index.ts",
-    "start:dev": "nodemon --exec ts-node src/server/index.ts",
+    "start:dev": "concurrently --names server,frontend -c blue,green \"npm run server:dev\" \"npm run frontend:dev\"",
+    "server:dev": "nodemon --exec ts-node src/server/index.ts --ext ejs --ignore public",
+    "frontendbuild": "webpack --cinfig webpack.config.ts",
+    "frontend:dev": "webpack --config webpack.config.ts --mode development --watch",
     "prepare": "husky",
     "db:create": "node-pg-migrate create -j ts --",
     "db:migrate": "ts-node node_modules/node-pg-migrate/bin/node-pg-migrate.js up -j ts",
@@ -22,7 +25,6 @@
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^5.0.1",
-    "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
     "node": "^23.9.0",
     "node-pg-migrate": "^7.9.1",
@@ -31,15 +33,25 @@
     "postgres": "^3.4.5"
   },
   "devDependencies": {
+    "@types/connect-livereload": "^0.6.3",
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
+    "@types/livereload": "^0.9.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.10",
+    "@types/webpack": "^5.28.5",
+    "concurrently": "^9.1.2",
+    "connect-livereload": "^0.6.1",
+    "http-errors": "^2.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
+    "livereload": "^0.9.3",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.3",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "webpack": "^5.99.5",
+    "webpack-cli": "^6.0.1"
   }
 }

@@ -15,6 +15,7 @@ router.get("/", async (_request: Request, response: Response) => {
     response.json(await db.any("SELECT * FROM test_table"));
   } catch (error) {
     console.error(error);
+
     response.status(500).json({ error: "An error occurred" });
   }
 });
