@@ -7,7 +7,7 @@ const register = async (email: string, password: string) => {
 
   const { id } = await db.one(
     "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
-    [email, password],
+    [email, encryptedPassword],
   );
   return id;
 };
