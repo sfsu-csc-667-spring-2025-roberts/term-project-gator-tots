@@ -6,6 +6,7 @@ import User from "../db/users";
 
 const router = express.Router();
 
+// Register
 router.get("/register", async (_request: Request, response: Response) => {
   response.render("auth/register");
 });
@@ -21,6 +22,7 @@ router.post("/register", async (request: Request, response: Response) => {
   response.json({ userId });
 });
 
+// Login
 router.get("/login", async (_request: Request, response: Response) => {
   response.render("auth/login");
 });
@@ -28,7 +30,13 @@ router.get("/login", async (_request: Request, response: Response) => {
 router.post("/login", async (request: Request, response: Response) => {
   const { username, password } = request.body;
 
-  response.json({ username, password });
+  try {
+    const userId = await User.login(username, password);
+
+    response.json({ userId });
+  } catch (error) {
+    response.render("auth/login", { error: "Invalid email or password" });
+  }
 });
 
 export default router;
