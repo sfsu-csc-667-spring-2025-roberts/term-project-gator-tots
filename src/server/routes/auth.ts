@@ -17,11 +17,11 @@ router.post("/register", async (request: Request, response: Response) => {
   const encryptedPassword = await bcrypt.hash(plainTextPassword, 10);
 
   // Create a record in the users table for the user (email, encrypted password)
-  await User.register(username, encryptedPassword);
+  const userId = await User.register(username, encryptedPassword);
 
-  // AUtomatically log the user in
+  // Automatically log the user in
 
-  response.json({ username, encryptedPassword });
+  response.json({ userId });
 });
 
 router.get("/login", async (_request: Request, response: Response) => {
