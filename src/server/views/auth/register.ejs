@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title></title>
-        <%- include("../shared/head.ejs") %>
-    </head>
-    <body>
-        <div id="container"></div>
+
+<head>
+    <title></title>
+    <%- include("../shared/head.ejs") %>
+</head>
+
+<body>
+    <div id="container">
         <%- include("../shared/header.ejs") %>
-        <h1>Register</h1>
-        <form action="/auth/register" method="post">
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required placeholder="Username">
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required placeholder="Password">
-            </div>
-            <button type="submit">Register</button>
-        </form>
+            <h1>Register</h1>
+            <form action="/auth/register" method="post">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required placeholder="Username">
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Password">
+                </div>
+                <button type="submit">Register</button>
+            </form>
     </div>
-    </body>
+</body>
+
 </html>
