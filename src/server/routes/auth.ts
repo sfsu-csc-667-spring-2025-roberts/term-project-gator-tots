@@ -18,10 +18,13 @@ router.post("/register", async (request: Request, response: Response) => {
     // Create a record in the users table for the user (email, encrypted password)
     const userId = await User.register(username, password);
 
-    // Automatically log the user in
+    // @ts-ignore
+    request.session.userId = userId; // store userId in session
 
-    response.json({ userId });
+    // Redirect to lobby after successful registration
+    response.redirect("/lobby");
   } catch (error) {
+    console.error("Registration error: ", error);
     response.render("auth/register", {
       error: "An error occured when registering.",
     });
@@ -30,7 +33,7 @@ router.post("/register", async (request: Request, response: Response) => {
 
 // Login
 router.get("/login", async (_request: Request, response: Response) => {
-  response.render("auth/login");
+  response.render("auth/login", { error: null });
 });
 
 router.post("/login", async (request: Request, response: Response) => {
@@ -39,10 +42,20 @@ router.post("/login", async (request: Request, response: Response) => {
   try {
     const userId = await User.login(username, password);
 
-    response.json({ userId });
+    // @ts-ignore
+    request.session.userId = userId; // store userId in session
+
+    response.redirect("/lobby");
   } catch (error) {
+    console.error("Login error: ", error);
     response.render("auth/login", { error: "Invalid email or password" });
   }
+});
+
+router.get("/logout", async (request: Request, response: Response) => {
+  request.session.destroy(() => {
+    response.redirect("/");
+  });
 });
 
 export default router;

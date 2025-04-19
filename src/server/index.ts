@@ -7,8 +7,13 @@ import cookieParser from "cookie-parser";
 import livereload from "livereload";
 import connectLivereload from "connect-livereload";
 
+import { setupSessions } from "./config/sessions";
+
 import * as routes from "./routes";
 console.log("Imported auth:", routes.auth);
+
+// Import or define sessionMiddleware
+import * as middleware from "./middleware/auth";
 
 import dotenv from "dotenv";
 
@@ -18,7 +23,7 @@ const app = express();
 if (process.env.NODE_ENV !== "production") {
   const reloadServer = livereload.createServer();
 
-  reloadServer.watch(path.join(process.cwd(), "public", "js"));
+  reloadServer.watch(path.join(process.cwd(), "public", "js", "ejs"));
   reloadServer.server.once("connection", () => {
     setTimeout(() => {
       reloadServer.refresh("/");
@@ -27,6 +32,8 @@ if (process.env.NODE_ENV !== "production") {
 
   app.use(connectLivereload());
 }
+
+setupSessions(app);
 
 console.log("Database URL:", process.env.DATABASE_URL);
 
@@ -44,6 +51,7 @@ app.use("/", routes.root);
 
 app.use("/test", routes.test);
 app.use("/auth", routes.auth);
+app.use("/lobby", middleware.sessionMiddleware, routes.lobby);
 
 app.use("/promise_version", routes.test);
 
