@@ -11,13 +11,10 @@ router.get("/register", async (_request: Request, response: Response) => {
 });
 
 router.post("/register", async (request: Request, response: Response) => {
-  const { username, password: plainTextPassword } = request.body;
-
-  // Encrypt password
-  const encryptedPassword = await bcrypt.hash(plainTextPassword, 10);
+  const { username, password } = request.body;
 
   // Create a record in the users table for the user (email, encrypted password)
-  const userId = await User.register(username, encryptedPassword);
+  const userId = await User.register(username, password);
 
   // Automatically log the user in
 
