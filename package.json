@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production ts-node src/server/index.ts",
-    "start:dev": "concurrently --names server,frontend -c blue,green \"npm run server:dev\" \"npm run frontend:dev\"",
-    "server:dev": "nodemon --exec ts-node src/server/index.ts --ext ts, ejs --ignore public",
+    "start:dev": "concurrently --names backend,frontend -c blue,green \"npm run server:dev\" \"npm run frontend:dev\"",
+    "server:dev": "nodemon --exec ts-node src/server/index.ts --ext ts,ejs --ignore public",
     "frontendbuild": "webpack --cinfig webpack.config.ts",
     "frontend:dev": "webpack --config webpack.config.ts --mode development --watch",
     "prepare": "husky",
@@ -33,7 +33,8 @@
     "node-pg-migrate": "^7.9.1",
     "pg": "^8.14.1",
     "pg-promise": "^11.13.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

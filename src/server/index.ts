@@ -23,7 +23,7 @@ const app = express();
 if (process.env.NODE_ENV !== "production") {
   const reloadServer = livereload.createServer();
 
-  reloadServer.watch(path.join(process.cwd(), "public", "js"));
+  reloadServer.watch(path.join(process.cwd(), "public", "js", "ejs"));
   reloadServer.server.once("connection", () => {
     setTimeout(() => {
       reloadServer.refresh("/");
