@@ -10,17 +10,25 @@
     <div id="container">
         <%- include("../shared/header.ejs") %>
             <h1>Register</h1>
-            <form action="/auth/register" method="post">
-                <div>
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required placeholder="Username">
+
+            <!-- Display error message if it exists -->
+            <% if (error) { %>
+                <div class="error-message" style="color: yellow">
+                    <%= error %>
                 </div>
-                <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required placeholder="Password">
-                </div>
-                <button type="submit">Register</button>
-            </form>
+                <% } %>
+
+                    <form action="/auth/register" method="post">
+                        <div>
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" required placeholder="Username">
+                        </div>
+                        <div>
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" required placeholder="Password">
+                        </div>
+                        <button type="submit">Register</button>
+                    </form>
     </div>
 </body>
 

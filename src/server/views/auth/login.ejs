@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title></title>
-        <%- include("../shared/head.ejs") %>
 
-    </head>
-    <body>
-        <%- include("../shared/header.ejs") %>
+<head>
+    <title></title>
+    <%- include("../shared/head.ejs") %>
+
+</head>
+
+<body>
+    <%- include("../shared/header.ejs") %>
 
         <h1>Login</h1>
-        <form action="/auth/login" method="post">
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required placeholder="Username">
+
+        <!-- Display error message if it exists -->
+        <% if (error) { %>
+            <div class="error-message" style="color: yellow">
+                <%= error %>
             </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required placeholder="Password">
-            </div>
-            <button type="submit">Login</button>
-        </form>
-    </body>
+            <% } %>
+
+
+                <form action="/auth/login" method="post">
+                    <div>
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required placeholder="Username">
+                    </div>
+                    <div>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required placeholder="Password">
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+</body>
+
 </html>

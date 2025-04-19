@@ -14,12 +14,18 @@ router.get("/register", async (_request: Request, response: Response) => {
 router.post("/register", async (request: Request, response: Response) => {
   const { username, password } = request.body;
 
-  // Create a record in the users table for the user (email, encrypted password)
-  const userId = await User.register(username, password);
+  try {
+    // Create a record in the users table for the user (email, encrypted password)
+    const userId = await User.register(username, password);
 
-  // Automatically log the user in
+    // Automatically log the user in
 
-  response.json({ userId });
+    response.json({ userId });
+  } catch (error) {
+    response.render("auth/register", {
+      error: "An error occured when registering.",
+    });
+  }
 });
 
 // Login
