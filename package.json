@@ -21,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
@@ -33,6 +34,7 @@
     "postgres": "^3.4.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/connect-livereload": "^0.6.3",
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",

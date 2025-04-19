@@ -1,5 +1,8 @@
 import express from "express";
 import { Request, Response } from "express";
+import bcrypt from "bcrypt";
+
+import User from "../db/users";
 
 const router = express.Router();
 
@@ -8,9 +11,17 @@ router.get("/register", async (_request: Request, response: Response) => {
 });
 
 router.post("/register", async (request: Request, response: Response) => {
-  const { username, password } = request.body;
+  const { username, password: plainTextPassword } = request.body;
 
-  response.json({ username, password });
+  // Encrypt password
+  const encryptedPassword = await bcrypt.hash(plainTextPassword, 10);
+
+  // Create a record in the users table for the user (email, encrypted password)
+  await User.register(username, encryptedPassword);
+
+  // AUtomatically log the user in
+
+  response.json({ username, encryptedPassword });
 });
 
 router.get("/login", async (_request: Request, response: Response) => {
