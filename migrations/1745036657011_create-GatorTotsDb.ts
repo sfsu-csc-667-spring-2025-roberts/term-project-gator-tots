@@ -3,8 +3,8 @@ import { ColumnDefinitions, MigrationBuilder } from "node-pg-migrate";
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createSchema("GatorTotsDb");
-  pgm.sql('SET search_path TO "GatorTotsDb"');
+  pgm.sql(`CREATE SCHEMA IF NOT EXISTS "GatorTotsDb"`);
+  pgm.sql(`SET search_path TO "GatorTotsDb"`);
 
   pgm.createTable(
     { schema: "GatorTotsDb", name: "deck" },
@@ -38,12 +38,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "game_room" },
-    "game_room",
+    "fk_game_room_deck_id",
     "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
   );
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "game_room" },
-    "game_room",
+    "fk_game_room_game_card_pile_id",
     "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
   );
 
@@ -62,7 +62,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "user" },
-    "user",
+    "fk_user_game_room_id",
     "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
   );
 
@@ -79,17 +79,17 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "card" },
-    "card",
+    "fk_card_user",
     'FOREIGN KEY(user_user_id) REFERENCES "user"(user_id)',
   );
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "card" },
-    "card",
+    "fk_card_deck_id",
     "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
   );
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "card" },
-    "card",
+    "fk_card_game_card_pile_id",
     "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
   );
 
@@ -106,18 +106,18 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "message" },
-    "message",
+    "pk_message_composite",
     "PRIMARY KEY (message_id, game_room_game_room_id)",
   );
 
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "message" },
-    "message",
+    "fk_message_user",
     'FOREIGN KEY(user_user_id) REFERENCES "user"(user_id)',
   );
   pgm.addConstraint(
     { schema: "GatorTotsDb", name: "message" },
-    "message",
+    "fk_message_game_room_id",
     "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
   );
 }

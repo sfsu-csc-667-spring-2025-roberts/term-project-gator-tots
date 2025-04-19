@@ -6,10 +6,12 @@ const router = express.Router();
 
 router.get("/", async (_request: Request, response: Response) => {
   try {
-    // Insert a new row into the test_table
-    await db.none("INSERT INTO test_table (test_string) VALUES ($1)", [
-      `Test string ${new Date().toISOString()}`,
-    ]);
+    // choose correct schema/db
+    await db.none("set search_path to 'GatorTotsDb'"),
+      // Insert a new row into the test_table
+      await db.none("INSERT INTO test_table (test_string) VALUES ($1)", [
+        `Test string ${new Date().toISOString()}`,
+      ]);
 
     // Fetch all rows from the test_table
     response.json(await db.any("SELECT * FROM test_table"));
