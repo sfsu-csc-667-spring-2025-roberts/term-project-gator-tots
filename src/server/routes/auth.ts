@@ -9,6 +9,8 @@ router.get("/register", async (_request: Request, response: Response) => {
 
 router.post("/register", async (request: Request, response: Response) => {
   const { username, password } = request.body;
+
+  response.json({ username, password });
 });
 
 router.get("/login", async (_request: Request, response: Response) => {
@@ -17,6 +19,8 @@ router.get("/login", async (_request: Request, response: Response) => {
 
 router.post("/login", async (request: Request, response: Response) => {
   const { username, password } = request.body;
+
+  response.json({ username, password });
 });
 
 export default router;
