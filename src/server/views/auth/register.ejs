@@ -5,6 +5,8 @@
         <%- include("../shared/head.ejs") %>
     </head>
     <body>
+        <div id="container"></div>
+        <%- include("../shared/header.ejs") %>
         <h1>Register</h1>
         <form action="/auth/register" method="post">
             <div>
@@ -17,5 +19,6 @@
             </div>
             <button type="submit">Register</button>
         </form>
+    </div>
     </body>
 </html>
