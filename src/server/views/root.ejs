@@ -4,13 +4,15 @@
 <head>
     <title><%= title %></title>
     <script src="/js/main.js" defer></script>
+    <%- include("../views/shared/header.ejs") %>
+
 </head>
 
 <body>
     <h1><%= title %></h1>
     <p> Hello <%= name %>!</p>
     <p>Welcome to the game login screen!
-        Please <a href="/auth/login">Login</a>:
+        Please <a href="/auth/login">Login</a> or <a href="/auth/register">Register</a>:
     </p>
     <ul>
         <% for(let i = 0; i < 10; i++) { %>
