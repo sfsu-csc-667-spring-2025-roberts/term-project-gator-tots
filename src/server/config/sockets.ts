@@ -9,18 +9,17 @@ const configureSockets = (io: Server, app: Express) => {
 
   io.on("connection", (socket) => {
     // @ts-ignore
-    const { id, user } = socket.request.session;
-    console.log(socket.request.session);
+    const { id, user_id, username } = socket.request.session;
 
     console.log(
-      `User [${user.user_id}] connected: ${user.username} with session id ${id}`,
+      `User [${username}] connected: ${user_id} with session id ${id}`,
     );
 
-    socket.join(user.id);
+    socket.join(id);
 
     socket.on("disconnect", () => {
       console.log(
-        `User [${user.user_id}] disconnected: ${user.username} with session id ${id}`,
+        `User [${username}] disconnected: ${user_id} with session id ${id}`,
       );
     });
   });

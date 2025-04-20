@@ -19,7 +19,9 @@ router.post("/register", async (request: Request, response: Response) => {
     const user_id = await User.register(username, password);
 
     // @ts-ignore
-    request.session.userId = user_id; // store userId in session
+    request.session.user_id = user_id; // store userId in session
+    // @ts-ignore
+    request.session.username = username;
 
     // Redirect to lobby after successful registration
     response.redirect("/lobby");
@@ -40,10 +42,12 @@ router.post("/login", async (request: Request, response: Response) => {
   const { username, password } = request.body;
 
   try {
-    const userId = await User.login(username, password);
+    const user_id = await User.login(username, password);
 
     // @ts-ignore
-    request.session.userId = userId; // store userId in session
+    request.session.user_id = user_id; // store userId in session
+    // @ts-ignore
+    request.session.username = username;
 
     response.redirect("/lobby");
   } catch (error) {
