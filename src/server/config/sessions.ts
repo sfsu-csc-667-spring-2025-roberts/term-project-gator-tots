@@ -1,14 +1,15 @@
 import connectPgSimple from "connect-pg-simple";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
+import { setUncaughtExceptionCaptureCallback } from "process";
 
-let middleware: RequestHandler | undefined = undefined;
+let sessionMiddleware: RequestHandler | undefined = undefined;
 
 const setupSessions = (app: Express) => {
-  if (middleware === undefined) {
+  if (sessionMiddleware === undefined) {
     const pgSession = connectPgSimple(session);
 
-    middleware = session({
+    sessionMiddleware = session({
       store: new pgSession({
         createTableIfMissing: true, // automatically creates table in db for cookie storage
       }),
@@ -17,10 +18,11 @@ const setupSessions = (app: Express) => {
       saveUninitialized: false, // creates a record in the session table even without authenticated user
     });
 
-    app.use(middleware);
+    app.use(sessionMiddleware);
   }
 
-  return middleware;
+  return sessionMiddleware;
 };
 
-export { setupSessions };
+export default setupSessions;
+export { sessionMiddleware };
