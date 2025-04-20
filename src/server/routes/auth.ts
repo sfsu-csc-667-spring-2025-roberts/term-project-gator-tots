@@ -16,10 +16,10 @@ router.post("/register", async (request: Request, response: Response) => {
 
   try {
     // Create a record in the users table for the user (email, encrypted password)
-    const userId = await User.register(username, password);
+    const user_id = await User.register(username, password);
 
     // @ts-ignore
-    request.session.userId = userId; // store userId in session
+    request.session.userId = user_id; // store userId in session
 
     // Redirect to lobby after successful registration
     response.redirect("/lobby");
