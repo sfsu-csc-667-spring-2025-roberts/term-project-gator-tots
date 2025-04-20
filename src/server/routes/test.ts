@@ -6,20 +6,33 @@ const router = express.Router();
 
 router.get("/", async (_request: Request, response: Response) => {
   try {
-    // choose correct schema/db
-    await db.none("set search_path to 'GatorTotsDb'"),
-      // Insert a new row into the test_table
-      await db.none("INSERT INTO test_table (test_string) VALUES ($1)", [
-        `Test string ${new Date().toISOString()}`,
-      ]);
+    // Insert a new row into the test_table
+    await db.none("INSERT INTO test_table (test_string) VALUES ($1)", [
+      `Test string ${new Date().toISOString()}`,
+    ]);
 
     // Fetch all rows from the test_table
     response.json(await db.any("SELECT * FROM test_table"));
   } catch (error) {
     console.error(error);
-
     response.status(500).json({ error: "An error occurred" });
   }
+});
+
+router.get("/promise_version", (request: Request, response: Response) => {
+  db.none("INSERT INTO test_table (test_string) VALUES ($1)", [
+    `Test string ${new Date().toISOString()}`,
+  ])
+    .then(() => {
+      return db.any("SELECT * FROM test_table");
+    })
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: "Internal Service Error" });
+    });
 });
 
 export default router;
