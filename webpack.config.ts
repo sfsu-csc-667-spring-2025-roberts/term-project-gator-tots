@@ -11,6 +11,7 @@ const config: webpack.Configuration = {
   mode,
   entry: {
     main: path.join(process.cwd(), "src", "client", "index.ts"),
+    socket: path.join(process.cwd(), "src", "client", "socket", "index.ts"),
   },
   output: {
     path: path.join(process.cwd(), "public", "js"),

@@ -6,9 +6,9 @@ const sessionMiddleware = (
   next: NextFunction,
 ) => {
   // @ts-ignore
-  if (request.session.userId !== undefined) {
+  if (request.session.user_id !== undefined) {
     // @ts-ignore
-    response.locals.userId = request.session.userId; // add stored userId to 'locals' which is accessible by all views
+    response.locals.user_id = request.session.user_id; // add stored userId to 'locals' which is accessible by all views
     next();
   } else {
     response.redirect("/auth/login");

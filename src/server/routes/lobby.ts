@@ -7,12 +7,12 @@ const router = express.Router();
 router.get("/", async (request: Request, response: Response) => {
   try {
     // @ts-ignore
-    const userId = request.session.userId;
+    const user_id = request.session.user_id;
 
     // Fetch the username from the database
     const { username } = await db.one(
       "SELECT username FROM users WHERE user_id = $1",
-      [userId],
+      [user_id],
     );
 
     // Render the lobby view with the username

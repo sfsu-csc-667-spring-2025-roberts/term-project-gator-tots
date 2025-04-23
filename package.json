@@ -5,12 +5,23 @@
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
+  "targets": {
+    "chat": {
+      "source": "./src/client/chat/index.ts"
+    },
+    "games": {
+      "source": "./src/client/games/index.ts"
+    },
+    "socket": {
+      "source": "./src/client/socket/index.ts"
+    }
+  },
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production ts-node src/server/index.ts",
     "start:dev": "concurrently --names backend,frontend -c blue,green \"npm run server:dev\" \"npm run frontend:dev\"",
     "server:dev": "nodemon --exec ts-node src/server/index.ts --ext ts,ejs --ignore public",
-    "frontendbuild": "webpack --cinfig webpack.config.ts",
+    "frontendbuild": "webpack --config webpack.config.ts",
     "frontend:dev": "webpack --config webpack.config.ts --mode development --watch",
     "prepare": "husky",
     "db:create": "node-pg-migrate create -j ts --",
@@ -21,6 +32,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/socket.io-client": "^3.0.0",
     "bcrypt": "^5.1.1",
     "connect-pg-simple": "^10.0.0",
     "cookie-parser": "^1.4.7",
@@ -34,7 +46,8 @@
     "pg": "^8.14.1",
     "pg-promise": "^11.13.0",
     "postgres": "^3.4.5",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
