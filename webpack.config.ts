@@ -12,6 +12,7 @@ const config: webpack.Configuration = {
   entry: {
     main: path.join(process.cwd(), "src", "client", "index.ts"),
     socket: path.join(process.cwd(), "src", "client", "socket", "index.ts"),
+    chat: path.join(process.cwd(), "src", "client", "chat", "index.ts"),
   },
   output: {
     path: path.join(process.cwd(), "public", "js"),
@@ -19,6 +20,9 @@ const config: webpack.Configuration = {
   },
   module: {
     rules: [{ test: /\.ts$/, use: "ts-loader", exclude: /node_modules/ }],
+  },
+  resolve: {
+    extensions: [".ts", ".js"], // Add .ts to resolve TypeScript files
   },
 };
 
