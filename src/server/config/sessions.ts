@@ -1,7 +1,6 @@
 import connectPgSimple from "connect-pg-simple";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import { setUncaughtExceptionCaptureCallback } from "process";
 
 let sessionMiddleware: RequestHandler | undefined = undefined;
 
@@ -17,6 +16,8 @@ const setupSessions = (app: Express) => {
       resave: true, // updates session everytime a request comes in
       saveUninitialized: false, // creates a record in the session table even without authenticated user
     });
+
+    console.log("Setting up app to use sessionMiddleware from session.ts");
 
     app.use(sessionMiddleware);
   }

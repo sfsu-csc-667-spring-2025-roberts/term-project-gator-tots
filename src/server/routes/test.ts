@@ -35,4 +35,17 @@ router.get("/promise_version", (request: Request, response: Response) => {
     });
 });
 
+router.get("/socket", (request: Request, response: Response) => {
+  const io = request.app.get("io");
+
+  io.emit("test", {
+    // @ts-ignore
+    user: request.session.username,
+    // @ts-ignore
+    userId: request.session.user_id,
+  });
+
+  response.json({ message: "Socket event emitted" });
+});
+
 export default router;
