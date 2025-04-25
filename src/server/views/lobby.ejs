@@ -6,33 +6,39 @@
 </head>
 
 <body>
-    <%- include('shared/header') %>
     <%- include('shared/head') %>
-            <a id="test-click-me" href="#">Click me</a>
-            <script>
-                document.getElementById('test-click-me').addEventListener('click', function (e) {
-                    e.preventDefault();
 
-                    fetch("/test/socket", { credentials: "include" })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok");
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        console.log(data);
-                    })
-                    .catch((error) => {
-                        console.error("There was a problem with the fetch operation", error);
+        <div id="container">
+            <%- include('shared/header') %>
+
+                <a id="test-click-me" href="#">Click me</a>
+                <script>
+                    document.getElementById('test-click-me').addEventListener('click', function (e) {
+                        e.preventDefault();
+
+                        fetch("/test/socket", { credentials: "include" })
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok");
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                console.log(data);
+                            })
+                            .catch((error) => {
+                                console.error("There was a problem with the fetch operation", error);
+                            });
                     });
-                });
-            </script>
+                </script>
 
-            <ul>
-                <h1>Hello, <%= username %>!</h1>
+                <ul>
+                    <h1>Hello, <%= username %>!</h1>
 
-            </ul>
+                </ul>
+
+        </div>
+
 
 </body>
 

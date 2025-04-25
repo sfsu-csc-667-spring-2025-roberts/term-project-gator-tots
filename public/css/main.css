@@ -1,5 +1,5 @@
 body {
-  background-color: #369;
+  background-color: #d7f59a;
 }
 
 #container {
@@ -10,10 +10,10 @@ body {
 
 .button-link {
   display: inline-block;
-  padding: 8px 16px;
-  background-color: #007bff;
+  padding: 4px 4px;
+  background-color: #a1c161;
   /* Button background color */
-  color: white;
+  color: #475a20;
   /* Button text color */
   text-decoration: none;
   /* Remove underline */
@@ -26,6 +26,8 @@ body {
 }
 
 .button-link:hover {
-  background-color: #0056b3;
+  background-color: #82a63b;
   /* Darker background on hover */
+  color: #daeeb1;
+  /* color on hover */
 }
