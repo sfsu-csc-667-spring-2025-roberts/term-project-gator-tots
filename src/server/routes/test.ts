@@ -1,6 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
 import db from "../db/connection";
+import type { Server } from "socket.io";
 
 const router = express.Router();
 
@@ -36,7 +37,9 @@ router.get("/promise_version", (request: Request, response: Response) => {
 });
 
 router.get("/socket", (request: Request, response: Response) => {
-  const io = request.app.get("io");
+  const io: Server = request.app.get("io");
+
+  console.log("Session data: ", request.session);
 
   io.emit("test", {
     // @ts-ignore
@@ -44,6 +47,9 @@ router.get("/socket", (request: Request, response: Response) => {
     // @ts-ignore
     userId: request.session.user_id,
   });
+
+  // @ts-ignore
+  io.to(request.session.user_id).emit("test", { secret: "hi" }); // send message to specific user
 
   response.json({ message: "Socket event emitted" });
 });
