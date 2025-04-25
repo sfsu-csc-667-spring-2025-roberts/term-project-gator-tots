@@ -5,11 +5,15 @@ body {
 #container {
   width: 800px;
   /* border: 1px solid red; */
+  height: 100%;
   margin: 0 auto;
+  border: 1px solid black;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .button-link {
-  display: inline-block;
+  display: float;
   padding: 4px 4px;
   background-color: #a1c161;
   /* Button background color */
@@ -30,4 +34,46 @@ body {
   /* Darker background on hover */
   color: #daeeb1;
   /* color on hover */
+}
+
+menu ul {
+  display: flex;
+  justify-content: flex-end; /* Align items to the right */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 25px;
+  margin-right: 25px;
+}
+
+menu ul li {
+  margin-left: 100px; /* Add spacing between items */
+}
+
+#lobby-container {
+  display: flex;
+}
+
+#lobby-container section {
+  width: 50%;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+section {
+  border: 1px solid black;
+}
+
+section#chat {
+  display: flex;
+  flex-direction: column;
+}
+
+section#chat form {
+  align-self: auto;
+}
+
+.header {
+  margin-left: 0px;
 }

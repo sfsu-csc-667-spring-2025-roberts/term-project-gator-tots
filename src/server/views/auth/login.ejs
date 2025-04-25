@@ -2,39 +2,41 @@
 <html lang="en">
 
 <head>
-    <title></title>
+    <title>Gator Tot's BS Login</title>
     <%- include('../shared/head') %>
 </head>
 
 <body>
     <div id="container">
-
-        <h1>Login</h1>
-
-        <!-- Display error message if it exists -->
-        <% if (error) { %>
-            <div class="error-message" style="color: yellow">
-                <%= error %>
-            </div>
-            <% } %>
-
-
-                <form action="/auth/login" method="post">
-                    <div>
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" name="username" required placeholder="Username">
-                    </div>
-                    <div>
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" required placeholder="Password">
-                    </div>
-                    <button type="submit" class="button-link">Login</button>
-                </form>
-            <br>
-            
-                <div>
-                    Don't have an account yet? Please <a href="/auth/register" class="button-link">Register</a>
+        <div class="header">
+            <h1>Login</h1>
+        </div>
+            <!-- Display error message if it exists -->
+            <% if (error) { %>
+                <div class="error-message" style="color: yellow">
+                    <%= error %>
                 </div>
+                <% } %>
+
+                    <form action="/auth/login" method="post">
+                        <div>
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" required placeholder="Username">
+                        </div>
+                        <div>
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" required placeholder="Password">
+                        </div>
+                        <button type="submit" class="button-link">Login</button>
+                    </form>
+                    <br>
+
+                    <div>
+                        Don't have an account yet? Please <a href="/auth/register" class="button-link">Register</a>
+                    </div>
+
+        
+
     </div>
 
 </body>
