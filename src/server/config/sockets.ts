@@ -26,6 +26,20 @@ const configureSockets = (
       console.warn("User session data is missing or incomplete.");
     }
 
+    // Listen for chat messages from the client
+    socket.on("chat:message", ({ roomId, message, username }) => {
+      console.log(
+        `Message received in room ${roomId} from ${username}: ${message}`,
+      );
+
+      // Emit the message to all clients in the room
+      io.to(roomId).emit("chat:message", {
+        message,
+        sender: { username },
+        timestamp: new Date(),
+      });
+    });
+
     socket.on("disconnect", () => {
       if (user_id && username) {
         console.log(`User [${username}] disconnected`);
