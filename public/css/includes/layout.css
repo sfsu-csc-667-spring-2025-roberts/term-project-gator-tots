@@ -13,3 +13,16 @@ body {
   padding-left: 25px;
   padding-right: 25px;
 }
+
+.button-link {
+  display: inline-block;
+  padding: 4px 4px;
+  background-color: #ecfde4;
+  color: #fd1941;
+  text-decoration: none;
+}
+
+.button-link:hover {
+  background-color: #abed8f;
+  color: #fd1941;
+}

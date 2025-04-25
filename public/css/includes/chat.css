@@ -2,7 +2,7 @@ section#chat {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: #ecfde4;
+  margin: 10px;
 }
 
 section#chat #messages {
@@ -13,6 +13,7 @@ section#chat #messages {
   margin-bottom: 10px;
   min-height: 65vh;
   max-height: 65vh;
+  background-color: #ecfde4;
 }
 
 section#chat #messages .message {
@@ -51,5 +52,5 @@ section#chat form input {
   border: 1px solid var(--color-border);
   flex-grow: 1;
   border-radius: 5px;
-  margin-right: 10px;
+  background-color: #ecfde4;
 }
