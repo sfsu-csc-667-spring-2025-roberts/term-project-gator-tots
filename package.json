@@ -5,17 +5,6 @@
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
-  "targets": {
-    "chat": {
-      "source": "./src/client/chat/index.ts"
-    },
-    "games": {
-      "source": "./src/client/games/index.ts"
-    },
-    "socket": {
-      "source": "./src/client/socket/index.ts"
-    }
-  },
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production ts-node src/server/index.ts",

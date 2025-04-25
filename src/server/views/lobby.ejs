@@ -3,15 +3,17 @@
 
 <head>
     <title>Gator Tots BS Lobby</title>
+    <%- include('shared/head') %>
+        <script src="/js/lobby.js"></script>
 </head>
 
-<body>
-    <%- include('shared/head') %>
+<body id="lobby">
 
 
-        <div id="container">
-            <%- include('shared/header') %>
-                <!-- <a id="test-click-me" href="#">Click me</a>
+
+    <div id="container">
+        <%- include('shared/menu') %>
+            <!-- <a id="test-click-me" href="#">Click me</a>
                 <script>
                     document.getElementById('test-click-me').addEventListener('click', function (e) {
                         e.preventDefault();
@@ -33,25 +35,55 @@
                 </script> -->
 
 
-                <h1>Hello, <%= username %>!</h1>
+            <h1>Hello, <%= username %>!</h1>
 
-                <div id="lobby-container">
-                    <section id="games">Games go here</section>
-                    <section id="chat">
-                        <div></div>
-                        <form class="chat-form">
-                            <input 
-                            type="text" 
-                            id="message" 
-                            name="message"
-                            placeholder="Type your message here..." />
-                            <button action="submit">Send</button>
-                        </form>
 
-                    </section>
-                </div>
-        </div>
+            <div id="content">
+                <section id="games-listing">
+                    <h2>My games</h2>
 
+                    <ul id="my-games">
+                        <li>
+                            <span class="status waiting">status</span>
+                            <span class="game-name">Game Name</span>
+                            <span class="game-players">Players</span>
+                            <a href="/games/42" class="button" target="_blank">Join</a>
+                        </li>
+                        <li>
+                            <span class="status playing">status</span>
+                            <span class="game-name">Game Name</span>
+                            <span class="game-players">Players</span>
+                            <a href="/games/42" class="button" target="_blank">Join</a>
+                        </li>
+                    </ul>
+
+                    <h2>Join a new game</h2>
+
+                    <ul id="available-games">
+                        <li>
+                            <span class="status waiting">status</span>
+                            <span class="game-name">Game 1</span>
+                            <span class="game-players">Players</span>
+                            <form method="post" action="/games/join/1">
+                                <input type="text" name="password" />
+                                <button type="submit">Join</button>
+                            </form>
+                        </li>
+                        <li>
+                            <span class="status waiting">status</span>
+                            <span class="game-name">Game 2</span>
+                            <span class="game-players">Players</span>
+                            <form method="post" action="/games/join/2">
+                                <button type="submit">Join</button>
+                            </form>
+                        </li>
+                    </ul>
+                </section>
+                <%- include('shared/chat') %>
+
+            </div>
+            <%- include("games/create-form") %>
+            <%- include('shared/templates') %>
 
 
 </body>

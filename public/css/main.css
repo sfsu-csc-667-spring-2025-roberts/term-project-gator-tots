@@ -1,79 +1,19 @@
+@import "https://www.nerdfonts.com/assets/css/webfont.css";
+
+@import url("/css/includes/reset.css");
+@import url("/css/includes/variables.css");
+
+@import url("/css/includes/layout.css");
+@import url("/css/includes/menu.css");
+
+@import url("/css/includes/chat.css");
+
+@import url("/css/includes/landing.css");
+@import url("/css/includes/auth.css");
+@import url("/css/includes/lobby.css");
+@import url("/css/includes/create-game-form.css");
+
 body {
-  background-color: #d7f59a;
-}
-
-#container {
-  width: 800px;
-  /* border: 1px solid red; */
-  height: 100%;
-  margin: 0 auto;
-  border: 1px solid black;
-  padding-left: 25px;
-  padding-right: 25px;
-}
-
-.button-link {
-  display: float;
-  padding: 4px 4px;
-  background-color: #a1c161;
-  /* Button background color */
-  color: #475a20;
-  /* Button text color */
-  text-decoration: none;
-  /* Remove underline */
-  border: none;
-  border-radius: 4px;
-  /* Rounded corners */
-  cursor: pointer;
-  font-size: 14px;
-  text-align: center;
-}
-
-.button-link:hover {
-  background-color: #82a63b;
-  /* Darker background on hover */
-  color: #daeeb1;
-  /* color on hover */
-}
-
-menu ul {
-  display: flex;
-  justify-content: flex-end; /* Align items to the right */
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  margin-top: 25px;
-  margin-right: 25px;
-}
-
-menu ul li {
-  margin-left: 100px; /* Add spacing between items */
-}
-
-#lobby-container {
-  display: flex;
-}
-
-#lobby-container section {
-  width: 50%;
-  border: 1px solid black;
-  margin-bottom: 10px;
-  padding: 10px;
-}
-
-section {
-  border: 1px solid black;
-}
-
-section#chat {
-  display: flex;
-  flex-direction: column;
-}
-
-section#chat form {
-  align-self: auto;
-}
-
-.header {
-  margin-left: 0px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: var(--font-size);
 }

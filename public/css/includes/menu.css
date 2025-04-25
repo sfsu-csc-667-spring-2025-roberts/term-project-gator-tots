@@ -1,0 +1,21 @@
+menu {
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 0;
+}
+
+menu .menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+menu a {
+  color: #777;
+  margin-right: 10px;
+  display: inline-block;
+}

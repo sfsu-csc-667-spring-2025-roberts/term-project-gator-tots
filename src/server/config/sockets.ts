@@ -1,30 +1,37 @@
-import type { Express } from "express";
-import type { Server } from "socket.io";
-import { sessionMiddleware } from "./sessions";
+import { Server } from "socket.io";
+import type { Express, RequestHandler } from "express";
 
-const configureSockets = (io: Server, app: Express) => {
+const configureSockets = (
+  io: Server,
+  app: Express,
+  sessionMiddleware: RequestHandler,
+) => {
   app.set("io", io);
-  console.log("Setting up io to use sessionMiddleware");
-  io.engine.use(sessionMiddleware); // gives us sessionMiddleware in the context of our socket
+
+  io.engine.use(sessionMiddleware);
 
   io.on("connection", (socket) => {
-    console.log(`New connection: ${socket.id}`);
-    console.log(`Total connections: ${io.sockets.sockets.size}`);
+    // Log the entire session object for debugging
     // @ts-ignore
-    const { id, user_id, username } = socket.request.session;
+    console.log("Session data:", socket.request.session);
 
-    console.log(
-      `User [${username}] connected: ${user_id} with session id ${id}`,
-    );
+    // Extract user_id and username from the session
+    // @ts-ignore
+    const { user_id, username } = socket.request.session;
 
-    socket.join(user_id);
+    if (user_id && username) {
+      console.log(`User [${username}] connected with session id ${socket.id}`);
+      socket.join(user_id.toString()); // Ensure user_id is a string for room names
+    } else {
+      console.warn("User session data is missing or incomplete.");
+    }
 
     socket.on("disconnect", () => {
-      console.log(
-        `User [${username}] disconnected: ${user_id} with session id ${id}`,
-      );
+      if (user_id && username) {
+        console.log(`User [${username}] disconnected`);
+        socket.leave(user_id.toString());
+      }
     });
   });
 };
-
 export default configureSockets;

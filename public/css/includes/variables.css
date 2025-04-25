@@ -1,0 +1,9 @@
+:root {
+  --color-border: #777;
+  --color-border-light: #aaa;
+
+  --font-size-l: 24px;
+  --font-size: 16px;
+  --font-size-small: 14px;
+  --font-size-xsmall: 10px;
+}

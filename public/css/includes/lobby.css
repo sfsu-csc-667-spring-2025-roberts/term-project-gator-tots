@@ -1,0 +1,26 @@
+body#lobby #container #content {
+  display: grid;
+  grid-template-columns: 4fr 2fr;
+  gap: 30px;
+}
+
+body#lobby h2 {
+  font-size: var(--font-size-l);
+}
+
+body#lobby h2:last-of-type {
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+body#lobby ul {
+  margin: 10px 0;
+}
+
+#games-listing {
+  position: relative;
+}
+
+#games-listing span.status {
+  font-size: var(--font-size-xsmall);
+}

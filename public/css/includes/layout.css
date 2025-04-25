@@ -1,0 +1,15 @@
+body {
+  background-color: #fcbec9;
+}
+
+#container {
+  width: 800px;
+  background-color: #ccf7ba;
+  /* border: 1px solid red; */
+  height: 100%;
+  margin: 0 auto;
+  margin-top: 50px;
+  border: 1px solid black;
+  padding-left: 25px;
+  padding-right: 25px;
+}

@@ -1,0 +1,35 @@
+form.auth-form {
+  width: 400px;
+  margin: 15px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+form.auth-form div {
+  display: flex;
+  margin-bottom: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+form.auth-form a {
+  display: inline-block;
+  margin: 10px auto;
+}
+
+form.auth-form label {
+  width: 30%;
+}
+
+form.auth-form input {
+  padding: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  flex-grow: 1;
+}
+
+form.auth-form button {
+  font-size: var(--font-size);
+  padding: 5px 0;
+}

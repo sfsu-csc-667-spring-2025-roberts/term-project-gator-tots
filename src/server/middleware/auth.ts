@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-const sessionMiddleware = (
+const authMiddleware = (
   request: Request,
   response: Response,
   next: NextFunction,
@@ -16,4 +16,4 @@ const sessionMiddleware = (
   // Check if the session is initialized
 };
 
-export { sessionMiddleware };
+export default authMiddleware;
