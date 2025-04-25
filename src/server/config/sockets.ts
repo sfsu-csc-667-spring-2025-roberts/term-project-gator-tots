@@ -17,7 +17,7 @@ const configureSockets = (io: Server, app: Express) => {
       `User [${username}] connected: ${user_id} with session id ${id}`,
     );
 
-    socket.join(id);
+    socket.join(user_id);
 
     socket.on("disconnect", () => {
       console.log(
