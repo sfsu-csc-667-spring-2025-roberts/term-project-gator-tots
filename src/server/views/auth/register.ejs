@@ -3,6 +3,7 @@
 
 <head>
     <title></title>
+    <%- include('../shared/head') %>
 </head>
 
 <body>
@@ -25,8 +26,11 @@
                             <label for="password">Password:</label>
                             <input type="password" id="password" name="password" required placeholder="Password">
                         </div>
-                        <button type="submit">Register</button>
+                        <button type="submit" class="button-link">Register</button>
                     </form>
+                    <div>
+                        Already have an account? Please <a href="/auth/login" class="button-link">Login</a>
+                    </div>
     </div>
 </body>
 
