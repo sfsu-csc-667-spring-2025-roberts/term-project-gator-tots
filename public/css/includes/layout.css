@@ -1,12 +1,8 @@
-body {
-  background-color: #fcbec9;
-}
-
 #container {
-  width: 800px;
+  width: 1024px;
   background-color: #ccf7ba;
   /* border: 1px solid red; */
-  height: 100%;
+  height: 768px;
   margin: 0 auto;
   margin-top: 50px;
   border: 1px solid black;
@@ -25,4 +21,9 @@ body {
 .button-link:hover {
   background-color: #abed8f;
   color: #fd1941;
+}
+
+.header-text {
+  padding-top: 20px;
+  font-size: xx-large;
 }

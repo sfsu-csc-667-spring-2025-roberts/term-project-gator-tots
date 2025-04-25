@@ -3,6 +3,10 @@ section#chat {
   flex-direction: column;
   justify-content: space-between;
   margin: 10px;
+  height: 250px;
+  width: 400px;
+  grid-row: 7;
+  grid-column: 3;
 }
 
 section#chat #messages {
@@ -11,8 +15,7 @@ section#chat #messages {
   border-radius: 5px;
   padding: 5px;
   margin-bottom: 10px;
-  min-height: 65vh;
-  max-height: 65vh;
+
   background-color: #ecfde4;
 }
 
