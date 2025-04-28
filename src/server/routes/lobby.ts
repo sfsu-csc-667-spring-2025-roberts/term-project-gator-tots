@@ -11,7 +11,7 @@ router.get("/", async (request: Request, response: Response) => {
 
     // Fetch the username from the database
     const { username } = await db.one(
-      'SELECT username FROM "GatorTotsDb"."users" WHERE user_id = $1',
+      "SELECT username FROM users WHERE user_id = $1",
       [user_id],
     );
 

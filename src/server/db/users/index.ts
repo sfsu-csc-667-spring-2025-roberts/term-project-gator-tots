@@ -12,7 +12,7 @@ const register = async (username: string, password: string) => {
   const encryptedPassword = await bcrypt.hash(password, 10);
 
   const { user_id } = await db.one(
-    'INSERT INTO "GatorTotsDb"."users" (username, user_password) VALUES ($1, $2) RETURNING user_id',
+    "INSERT INTO users (username, user_password) VALUES ($1, $2) RETURNING user_id",
     [username, encryptedPassword],
   );
   console.log(user_id);
@@ -20,10 +20,9 @@ const register = async (username: string, password: string) => {
 };
 
 const login = async (username: string, password: string) => {
-  const user = await db.one<User>(
-    'SELECT * FROM "GatorTotsDb"."users" WHERE username = $1',
-    [username],
-  );
+  const user = await db.one<User>("SELECT * FROM users WHERE username = $1", [
+    username,
+  ]);
 
   const passwordsMatch = await bcrypt.compare(password, user.user_password);
 
