@@ -17,6 +17,10 @@ section#chat #messages {
   margin-bottom: 10px;
 
   background-color: #ecfde4;
+
+  /* Dimensions for chat box */
+  height: 200px;
+  min-height: 200px;
 }
 
 section#chat #messages .message {
