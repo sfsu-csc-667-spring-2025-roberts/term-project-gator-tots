@@ -1,7 +1,5 @@
 import express from "express";
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-
 import User from "../db/users";
 
 const router = express.Router();
@@ -12,8 +10,10 @@ router.get("/register", async (_request: Request, response: Response) => {
 });
 
 router.post("/register", async (request: Request, response: Response) => {
+  console.log("POST /register route hit");
   const { username, password } = request.body;
-
+  // console.log("Username: " + request.body);
+  // console.log("Password: " + password);
   try {
     // Create a record in the users table for the user (email, encrypted password)
     const user_id = await User.register(username, password);

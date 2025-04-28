@@ -34,7 +34,7 @@ app.use(
 );
 
 app.use(express.static(path.join(process.cwd(), "public")));
-app.use(middleware.room);
+// app.use(middleware.room);
 
 app.set("views", path.join(process.cwd(), "src", "server", "views"));
 app.set("view engine", "ejs");
@@ -45,6 +45,7 @@ app.use("/auth", routes.auth);
 app.use("/chat", middleware.auth, routes.chat);
 app.use("/lobby", middleware.auth, routes.lobby);
 app.use("/games", middleware.auth, routes.games);
+app.use("/js", express.static(path.join(process.cwd(), "src", "client", "js")));
 
 app.use((_request, _response, next) => {
   next(httpErrors(404));
