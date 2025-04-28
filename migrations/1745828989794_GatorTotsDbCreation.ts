@@ -3,6 +3,7 @@ import { ColumnDefinitions, MigrationBuilder } from "node-pg-migrate";
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
+  // === Create base tables first ===
   pgm.createTable("deck", {
     deck_id: { type: "integer", primaryKey: true },
   });
@@ -24,17 +25,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     current_players_turn: { type: "integer" },
   });
 
-  pgm.addConstraint(
-    "game_room",
-    "fk_game_room_deck_id",
-    "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
-  );
-  pgm.addConstraint(
-    "game_room",
-    "fk_game_room_game_card_pile_id",
-    "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
-  );
-
   pgm.createTable("users", {
     user_id: { type: "serial", primaryKey: true },
     username: { type: "varchar(50)", unique: true },
@@ -45,12 +35,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_room_game_room_id: { type: "integer" },
   });
 
-  pgm.addConstraint(
-    "users",
-    "fk_users_game_room_id",
-    "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
-  );
-
   pgm.createTable("card", {
     card_id: { type: "integer", primaryKey: true },
     card_rank: { type: "integer" },
@@ -59,48 +43,96 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_card_pile_game_card_pile_id: { type: "integer", notNull: true },
   });
 
-  pgm.addConstraint(
-    "card",
-    "fk_card_users",
-    "FOREIGN KEY(user_user_id) REFERENCES users(user_id)",
-  );
-  pgm.addConstraint(
-    "card",
-    "fk_card_deck_id",
-    "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
-  );
-  pgm.addConstraint(
-    "card",
-    "fk_card_game_card_pile_id",
-    "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
-  );
-
   pgm.createTable("message", {
-    message_id: { type: "integer", notNull: true },
+    message_id: { type: "integer", notNull: true }, // will alter later
     message_content: { type: "varchar(255)" },
     message_time: { type: "timestamp" },
     user_user_id: { type: "integer", notNull: true },
     game_room_game_room_id: { type: "integer", notNull: true },
   });
 
+  // === Add initial constraints ===
   pgm.addConstraint(
-    "message",
-    "pk_message_composite",
-    "PRIMARY KEY (message_id, game_room_game_room_id)",
+    "game_room",
+    "fk_game_room_deck_id",
+    "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
   );
+
+  pgm.addConstraint(
+    "game_room",
+    "fk_game_room_game_card_pile_id",
+    "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
+  );
+
+  pgm.addConstraint(
+    "users",
+    "fk_users_game_room_id",
+    "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
+  );
+
+  pgm.addConstraint(
+    "card",
+    "fk_card_users",
+    "FOREIGN KEY(user_user_id) REFERENCES users(user_id)",
+  );
+
+  pgm.addConstraint(
+    "card",
+    "fk_card_deck_id",
+    "FOREIGN KEY(deck_deck_id) REFERENCES deck(deck_id)",
+  );
+
+  pgm.addConstraint(
+    "card",
+    "fk_card_game_card_pile_id",
+    "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
+  );
+
   pgm.addConstraint(
     "message",
     "fk_message_users",
     "FOREIGN KEY(user_user_id) REFERENCES users(user_id)",
   );
+
   pgm.addConstraint(
     "message",
     "fk_message_game_room_id",
     "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
   );
+
+  // === Add new columns to message ===
+  pgm.addColumns("message", {
+    username: { type: "varchar(50)", notNull: true },
+    timestamp: { type: "timestamp", default: pgm.func("now()"), notNull: true },
+  });
+
+  // === Create sequence and set it for message_id ===
+  pgm.createSequence("message_message_id_seq");
+
+  pgm.alterColumn("message", "message_id", {
+    type: "integer",
+    default: pgm.func("nextval('message_message_id_seq')"),
+  });
+
+  // === Make message_id the primary key ===
+  pgm.addConstraint("message", "pk_message_id", {
+    primaryKey: "message_id",
+  });
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
+  // Reverse order matters!
+
+  // Drop message primary key and sequence
+  pgm.dropConstraint("message", "pk_message_id");
+  pgm.alterColumn("message", "message_id", { default: null });
+  pgm.dropSequence("message_message_id_seq");
+
+  // Drop added columns
+  pgm.dropColumn("message", "username");
+  pgm.dropColumn("message", "timestamp");
+
+  // Drop tables (in reverse of dependencies)
   pgm.dropTable("message");
   pgm.dropTable("card");
   pgm.dropTable("users");
