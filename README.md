@@ -19,17 +19,26 @@ TO-DO:
 
 - Implement game creation feature
 
+  - create field where game instances show in lobby with host and join buttons
+  - Show game instance with 'Game Name' and players (x/y) where x is current number of
+    players and y is the max.
+    - password protected games would be denoted with a _, e.g. Game Lobby 1_ (3/8)
   - create game-creation form
-  - create field where game instances show in lobby
-    - make game create and game join buttons with proper routing
+    - Game Name: String
+    - Password (optional): String
+    - Min players (minimum 3): integer
+    - Max Players (maximum 8): integer
+    - Submit button 'Create Game'
   - make sure data is added to db upon creation
-  - have game instances show in the lobby
   - route game join and password prompt if game is protected
   - add 'start game' feature which initializes start of game
+    - alternative: only have num_players field and game starts automatically when desired number of
+      players is reached.
 
 - Implement game-flow and game-logic
+
   - seat players in order of join
-  - once minimum number of players joined, host can 'start game'
+  - once minimum number of players joined, host can 'start game' (see alternative)
   - all cards of one deck are distributed among players in clockwise order (ascending order after the host), starting with host
   - player with ace of spades is prompted to go with the first turn
     - player has to play 1-4 cards
@@ -43,3 +52,5 @@ TO-DO:
       - player who called bluff inherits stack of cards
   - once a player has 0 cards, they are declared the winner.
   - winner is declared in chat by game server
+
+  - (Game instance is deleted from db?)
