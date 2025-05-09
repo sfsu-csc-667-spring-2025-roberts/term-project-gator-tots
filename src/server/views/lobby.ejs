@@ -3,88 +3,67 @@
 
 <head>
     <title>Gator Tots BS Lobby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
     <%- include('shared/head') %>
-        <script src="/js/lobby.js"></script>
+    <script src="/js/lobby.js"></script>
+    
+    
 </head>
 
 <body id="lobby">
 
-
-
     <div id="container">
         <%- include('shared/menu') %>
-            <!-- <a id="test-click-me" href="#">Click me</a>
-                <script>
-                    document.getElementById('test-click-me').addEventListener('click', function (e) {
-                        e.preventDefault();
 
-                        fetch("/test/socket", { credentials: "include" })
-                            .then((response) => {
-                                if (!response.ok) {
-                                    throw new Error("Network response was not ok");
-                                }
-                                return response.json();
-                            })
-                            .then((data) => {
-                                console.log(data);
-                            })
-                            .catch((error) => {
-                                console.error("There was a problem with the fetch operation", error);
-                            });
-                    });
-                </script> -->
+        <h1> Welcome to the BS Lobby!</h1>
+        <br>
 
+        <div id="content">
+            <section id="games-listing">
+                <h2>🃏 Your Games</h2>
+                <ul id="my-games">
+                    <li>
+                        <span class="status waiting">Waiting</span>
+                        <span class="game-name">Game Name</span>
+                        <span class="game-players">2/4 players</span>
+                        <a href="/games/42" class="button" target="_blank">Join</a>
+                    </li>
+                    <li>
+                        <span class="status playing">Playing</span>
+                        <span class="game-name">Game Name</span>
+                        <span class="game-players">4/4 players</span>
+                        <a href="/games/42" class="button" target="_blank">Join</a>
+                    </li>
+                </ul>
 
-            <h1>Hello, <%= username %>!</h1>
-                <br>
+                <h2>✨ Join a New Game</h2>
+                <ul id="available-games">
+                    <li>
+                        <span class="status waiting">Waiting</span>
+                        <span class="game-name">Game 1</span>
+                        <span class="game-players">1/4 players</span>
+                        <form method="post" action="/games/join/1">
+                            <input type="text" name="password" placeholder="Password?" />
+                            <button type="submit">Join</button>
+                        </form>
+                    </li>
+                    <li>
+                        <span class="status waiting">Waiting</span>
+                        <span class="game-name">Game 2</span>
+                        <span class="game-players">2/4 players</span>
+                        <form method="post" action="/games/join/2">
+                            <button type="submit">Join</button>
+                        </form>
+                    </li>
+                </ul>
+            </section>
 
-            <div id="content">
-                <section id="games-listing">
-                    <h2>My games</h2>
+            <%- include('shared/chat') %>
+        </div>
 
-                    <ul id="my-games">
-                        <li>
-                            <span class="status waiting">status</span>
-                            <span class="game-name">Game Name</span>
-                            <span class="game-players">Players</span>
-                            <a href="/games/42" class="button" target="_blank">Join</a>
-                        </li>
-                        <li>
-                            <span class="status playing">status</span>
-                            <span class="game-name">Game Name</span>
-                            <span class="game-players">Players</span>
-                            <a href="/games/42" class="button" target="_blank">Join</a>
-                        </li>
-                    </ul>
-
-                    <h2>Join a new game</h2>
-
-                    <ul id="available-games">
-                        <li>
-                            <span class="status waiting">status</span>
-                            <span class="game-name">Game 1</span>
-                            <span class="game-players">Players</span>
-                            <form method="post" action="/games/join/1">
-                                <input type="text" name="password" />
-                                <button type="submit">Join</button>
-                            </form>
-                        </li>
-                        <li>
-                            <span class="status waiting">status</span>
-                            <span class="game-name">Game 2</span>
-                            <span class="game-players">Players</span>
-                            <form method="post" action="/games/join/2">
-                                <button type="submit">Join</button>
-                            </form>
-                        </li>
-                    </ul>
-                </section>
-                <%- include('shared/chat') %>
-
-            </div>
-            <%- include("games/create-form") %>
-            <%- include('shared/templates') %>
-
+        <%- include("games/create-form") %>
+        <%- include('shared/templates') %>
+    </div>
 
 </body>
 
