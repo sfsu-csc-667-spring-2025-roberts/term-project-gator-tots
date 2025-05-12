@@ -7,12 +7,12 @@ const router = express.Router();
 
 router.post("/create", async (request: Request, response: Response) => {
   // @ts-ignore
-  const { id: user_id } = request.session.user_id;
-  const { description, minPlayers, maxPlayers, password } = request.body;
+  const user_id = request.session?.user_id as number; //  const { id: user_id } = request.session.user_id;
+  const { name, minPlayers, maxPlayers, password } = request.body;
 
   try {
     const gameId = await Game.create(
-      description,
+      name,
       minPlayers,
       maxPlayers,
       password,

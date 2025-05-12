@@ -1,10 +1,10 @@
 import db from "../connection";
 import { ADD_PLAYER, CONDITIONALLY_JOIN_SQL, CREATE_SQL } from "./sql";
 
-const create = async (
+export const create = async (
   name: string,
-  minPlayers: string,
-  maxPlayers: string,
+  minPlayers: number,
+  maxPlayers: number,
   password: string,
   user_id: number,
 ) => {
@@ -16,11 +16,14 @@ const create = async (
   ]);
 
   await db.none(ADD_PLAYER, [gameId, user_id]);
-
   return gameId;
 };
 
-const join = async (userId: number, gameId: number, password: string = "") => {
+export const join = async (
+  userId: number,
+  gameId: number,
+  password: string = "",
+) => {
   const { playerCount } = await db.one<{ playerCount: number }>(
     CONDITIONALLY_JOIN_SQL,
     {

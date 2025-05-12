@@ -24,3 +24,127 @@ body#lobby ul {
 #games-listing span.status {
   font-size: var(--font-size-xsmall);
 }
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  font-family: "Comic Neue", cursive, sans-serif;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal input {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal h2 {
+  margin-top: 0;
+  color: #6c5ce7;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal form label {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  display: block;
+  color: #2d3436;
+}
+
+.modal input[type="text"],
+.modal input[type="number"] {
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 10px;
+  border: 1px solid #dfe6e9;
+  width: 100%;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+h2 button {
+  background-color: #6c5ce7;
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s;
+}
+
+.modal button {
+  background-color: #6c5ce7;
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s;
+}
+
+.modal button:hover {
+  background-color: #341f97;
+  transform: scale(1.03);
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #636e72;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #d63031;
+}
