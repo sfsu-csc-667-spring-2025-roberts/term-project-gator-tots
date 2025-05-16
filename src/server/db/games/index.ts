@@ -63,6 +63,14 @@ export const getGameNameById = async (gameId: number) => {
   );
 };
 
+export const getAvailableGames = async () => {
+  return db.any(
+    `SELECT game_room_id, game_room_name, min_players, max_players
+     FROM game_room
+     WHERE game_started = FALSE
+      AND game_room_id != '0'`,
+  );
+};
 // export const isHost = async (user_id: number, gameId: number) => {
 //   // Adjust column names as needed
 //   const { host_id } = await db.one(
