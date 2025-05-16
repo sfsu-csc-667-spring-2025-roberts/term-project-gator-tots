@@ -16,11 +16,30 @@
     </div>
   </body>
 
-  <script>
-  const IS_HOST = <%= isHost ? "true" : "false" %>;
+<script>
   const GAME_ID = <%= gameId %>;
+
   window.addEventListener("beforeunload", function (e) {
-      navigator.sendBeacon(`/games/leave/${GAME_ID}`);    
+    // Try to detect navigation type using PerformanceNavigationTiming
+    let navType = "navigate";
+    if (performance.getEntriesByType) {
+      const navEntries = performance.getEntriesByType("navigation");
+      if (navEntries.length > 0) {
+        navType = navEntries[0].type;
+      }
+    } else if (performance.navigation) {
+      // Deprecated fallback
+      switch (performance.navigation.type) {
+        case 1: navType = "reload"; break;
+        case 2: navType = "back_forward"; break;
+        default: navType = "navigate";
+      }
+    }
+
+    // Only send leave if NOT a reload
+    if (navType !== "reload") {
+      navigator.sendBeacon(`/games/leave/${GAME_ID}`);
+    }
   });
 </script>
 </html>

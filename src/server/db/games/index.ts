@@ -82,14 +82,19 @@ export const getAvailableGames = async () => {
 export const isHost = async (user_id: number, gameId: number) => {
   // Adjust column names as needed
   const { host_id } = await db.one(
-    "SELECT host_id FROM game_room WHERE game_room_id = $1",
+    "SELECT game_room_host_user_id FROM game_room WHERE game_room_id = $1",
     [gameId],
   );
   return host_id === user_id;
 };
 
 export const deleteGame = async (gameId: number) => {
-  // Delete related data first if needed (cards, messages, etc.)
+  // Remove all users from the game
+  await db.none(
+    "UPDATE users SET game_room_id = NULL WHERE game_room_id = $1",
+    [gameId],
+  );
+  // Delete the game room
   await db.none("DELETE FROM game_room WHERE game_room_id = $1", [gameId]);
 };
 
@@ -101,4 +106,19 @@ export const leaveGame = async (user_id: number, gameId: number) => {
   );
 };
 
-export default { create, join, getGameNameById, isHost, deleteGame, leaveGame };
+export const getPlayerCount = async (gameId: number) => {
+  return db.one(
+    "SELECT COUNT(*)::int AS count FROM users WHERE game_room_id = $1",
+    [gameId],
+  );
+};
+
+export default {
+  create,
+  join,
+  getGameNameById,
+  isHost,
+  deleteGame,
+  leaveGame,
+  getPlayerCount,
+};

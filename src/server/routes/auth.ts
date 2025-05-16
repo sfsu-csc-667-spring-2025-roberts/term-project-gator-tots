@@ -2,6 +2,7 @@ import express from "express";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import db from "../db/connection"; // Import your database connection
+import { Game } from "../db";
 
 import User from "../db/users";
 
@@ -60,10 +61,23 @@ router.post("/login", async (request: Request, response: Response) => {
 router.get("/logout", async (request: Request, response: Response) => {
   // @ts-ignore
   const user_id = request.session.user_id;
-  // Remove user from game if in one
-  await db.none("UPDATE users set game_room_id = NULL WHERE user_id = $1", [
-    user_id,
-  ]);
+
+  // Find if the user is hosting any game
+  const game = await db.oneOrNone(
+    "SELECT game_room_id FROM game_room WHERE game_room_host_user_id = $1",
+    [user_id],
+  );
+
+  if (game) {
+    // If user is host, delete the game
+    await Game.deleteGame(game.game_room_id);
+  } else {
+    // Otherwise, just remove user from any game
+    await db.none("UPDATE users SET game_room_id = NULL WHERE user_id = $1", [
+      user_id,
+    ]);
+  }
+
   request.session.destroy(() => {
     response.redirect("/");
   });

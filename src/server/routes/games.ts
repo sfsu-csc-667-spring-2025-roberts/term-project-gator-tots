@@ -2,6 +2,7 @@ import express from "express";
 import { Request, Response } from "express";
 
 import { Game } from "../db";
+import { getAvailableGames } from "../db/games";
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ router.post("/create", async (request: Request, response: Response) => {
   // @ts-ignore
   const host_id = request.session?.user_id as number;
   const { game_name, minPlayers, maxPlayers, password } = request.body;
+  const games = await getAvailableGames();
 
   try {
     const gameId = await Game.create(
@@ -33,6 +35,7 @@ router.post("/create", async (request: Request, response: Response) => {
         roomId: 0,
         // @ts-ignore
         username: request.session?.username,
+        games,
       });
     }
     console.log({ error });
@@ -62,18 +65,39 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
 
 router.post("/leave/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
-
   const numericGameId = Number(gameId);
   // @ts-ignore
   const user_id = request.session.user_id;
 
-  const isHost = await Game.isHost(user_id, numericGameId);
+  let isHost = false;
+  if (user_id) {
+    isHost = await Game.isHost(user_id, numericGameId);
+  }
+
   if (isHost) {
     await Game.deleteGame(numericGameId);
-  } else {
+  } else if (user_id) {
     await Game.leaveGame(user_id, numericGameId);
+
+    // Check if any users are left in the game
+    const { count } = await Game.getPlayerCount(numericGameId);
+    if (count === 0) {
+      await Game.deleteGame(numericGameId);
+    }
+  } else {
+    // If user_id is missing (e.g., sendBeacon with no session), as a fallback, check if the game has any users
+    const { count } = await Game.getPlayerCount(numericGameId);
+    if (count === 0) {
+      await Game.deleteGame(numericGameId);
+    }
   }
-  response.redirect("/lobby");
+
+  // For sendBeacon, don't redirect
+  if (request.headers.accept !== "application/json") {
+    response.redirect("/lobby");
+  } else {
+    response.status(204).end();
+  }
 });
 
 router.get("/:gameId", async (request: Request, response: Response) => {
