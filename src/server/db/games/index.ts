@@ -1,5 +1,11 @@
 import db from "../connection";
-import { ADD_PLAYER, CONDITIONALLY_JOIN_SQL, CREATE_SQL } from "./sql";
+import {
+  ADD_PLAYER,
+  CONDITIONALLY_JOIN_SQL,
+  CREATE_DECK_SQL,
+  CREATE_GAME_CARD_PILE_WITH_ID_SQL,
+  CREATE_GAME_ROOM_SQL,
+} from "./sql";
 
 export const create = async (
   name: string,
@@ -8,15 +14,20 @@ export const create = async (
   password: string,
   user_id: number,
 ) => {
-  const { id: gameId } = await db.one<{ id: number }>(CREATE_SQL, [
-    name,
-    minPlayers,
-    maxPlayers,
-    password,
-  ]);
+  // 1. Create deck
+  const { deck_id } = await db.one<{ deck_id: number }>(CREATE_DECK_SQL);
 
-  await db.none(ADD_PLAYER, [gameId, user_id]);
-  return gameId;
+  // 2. Create game_card_pile with the same id as deck_id
+  await db.one(CREATE_GAME_CARD_PILE_WITH_ID_SQL, [deck_id]);
+
+  // 3. Create game_room using the same id for both deck and pile
+  const { game_room_id } = await db.one<{ game_room_id: number }>(
+    CREATE_GAME_ROOM_SQL,
+    [deck_id, deck_id, deck_id, name, minPlayers, maxPlayers, password],
+  );
+
+  await db.none(ADD_PLAYER, [game_room_id, user_id]);
+  return game_room_id;
 };
 
 export const join = async (
