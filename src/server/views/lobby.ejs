@@ -10,8 +10,6 @@
 
 <body id="lobby">
 
-
-
     <div id="container">
         <%- include('shared/menu') %>
 
@@ -24,21 +22,6 @@
                         🃏 Your Games
                         <button id="open-create-modal">Create Game</button>
                     </h2>
-                    <ul id="my-games">
-                        <li>
-                            <span class="status waiting">Waiting</span>
-                            <span class="game-name">Game Name</span>
-                            <span class="game-players">2/4 players</span>
-                            <a href="/games/42" class="button" target="_blank">Join</a>
-                        </li>
-                        <li>
-                            <span class="status playing">Playing</span>
-                            <span class="game-name">Game Name</span>
-                            <span class="game-players">4/4 players</span>
-                            <a href="/games/42" class="button" target="_blank">Join</a>
-                        </li>
-                    </ul>
-
                     <div id="create-game-modal" class="modal hidden">
                         <div class="modal-content">
                             <span class="close-button">&times;</span>
@@ -63,11 +46,7 @@
                         </div>
                     </div>
 
-
-
-
-
-                    <h2>✨ Join a New Game</h2>
+                    <h2>✨ Join a Game</h2>
                     <ul id="available-games">
                         <% if (games && games.length> 0) { %>
                             <% games.forEach(function(game) { %>
