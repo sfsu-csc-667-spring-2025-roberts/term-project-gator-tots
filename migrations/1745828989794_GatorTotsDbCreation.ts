@@ -48,7 +48,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     message_content: { type: "varchar(255)" },
     message_time: { type: "timestamp" },
     user_user_id: { type: "integer", notNull: true },
-    game_room_game_room_id: { type: "integer", notNull: true },
+    game_room_game_room_id: {
+      type: "integer",
+      notNull: true,
+      onDelete: "CASCADE",
+    },
   });
 
   // === Add initial constraints ===
@@ -91,7 +95,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.addConstraint(
     "message",
     "fk_message_game_room_id",
-    "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
+    "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id) ON DELETE CASCADE",
   );
 
   // === Add new columns to message ===

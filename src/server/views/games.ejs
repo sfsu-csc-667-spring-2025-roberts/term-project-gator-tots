@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Gator Tot's BS Game Lobby</title>
   <%- include('shared/head') %>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -33,6 +34,51 @@
               Start Game
         </button>
   </div>
+
+
+  
 </body>
+
+<div id="chat-window">
+  <ul id="chat-messages"></ul>
+  <form id="chat-form">
+    <input type="text" id="chat-input" autocomplete="off" placeholder="Type a message..." />
+    <button type="submit">Send</button>
+  </form>
+</div>
+<script>
+  const roomId = "<%= gameId %>";
+  const socket = io();
+
+  // Listen for new messages
+  socket.on(`chat:message:${roomId}`, function(data) {
+    const li = document.createElement("li");
+    li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
+    document.getElementById("chat-messages").appendChild(li);
+  });
+
+  // Send message
+  document.getElementById("chat-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const input = document.getElementById("chat-input");
+    fetch(`/chat/${roomId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input.value }),
+    });
+    input.value = "";
+  });
+
+  // Optionally, load previous messages
+  fetch(`/chat/${roomId}/messages`)
+    .then(res => res.json())
+    .then(messages => {
+      messages.forEach(msg => {
+        const li = document.createElement("li");
+        li.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.username}: ${msg.message_content}`;
+        document.getElementById("chat-messages").appendChild(li);
+      });
+    });
+</script>
 
 </html>

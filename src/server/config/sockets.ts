@@ -26,6 +26,12 @@ const configureSockets = (
       console.warn("User session data is missing or incomplete.");
     }
 
+    // Allow clients to join a game room for chat
+    socket.on("joinRoom", (roomId) => {
+      socket.join(roomId);
+      console.log(`Socket ${socket.id} joined room ${roomId}`);
+    });
+
     // Listen for chat messages from the client
     socket.on("chat:message", ({ roomId, message, username }) => {
       console.log(
@@ -33,7 +39,7 @@ const configureSockets = (
       );
 
       // Emit the message to all clients in the room
-      io.to(roomId).emit("chat:message", {
+      io.to(roomId).emit(`chat:message${roomId}`, {
         message,
         sender: { username },
         timestamp: new Date(),
