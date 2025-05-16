@@ -108,12 +108,16 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   // @ts-ignore
   const user_id = request.session.user_id;
 
-  const { game_room_name, game_room_host_user_id } = await Game.getGameNameById(
-    Number(gameId),
-  );
+  const game = await Game.getGameNameById(Number(gameId));
+
+  if (!game || !game.game_room_name) {
+    // Game not found, redirect to lobby or show an error
+    return response.redirect("/lobby");
+  }
+
+  const { game_room_name, game_room_host_user_id } = game;
   const isHost = user_id === game_room_host_user_id;
 
-  // @ts-ignore
   response.render("games", {
     gameId,
     username,
