@@ -5,7 +5,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 export async function up(pgm: MigrationBuilder): Promise<void> {
   // === Create base tables first ===
   pgm.createTable("deck", {
-    deck_id: { type: "integer", primaryKey: true },
+    deck_id: { type: "serial", primaryKey: true },
   });
 
   pgm.createTable("game_card_pile", {
