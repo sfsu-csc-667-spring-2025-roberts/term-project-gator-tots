@@ -18,6 +18,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_card_pile_game_card_pile_id: { type: "integer", notNull: true },
     game_room_password: { type: "varchar(45)" },
     game_room_name: { type: "varchar(45)", unique: true },
+    game_room_host_user_id: { type: "integer" },
     min_players: { type: "integer" },
     max_players: { type: "integer" },
     game_started: { type: "boolean", default: false },
@@ -61,12 +62,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     "game_room",
     "fk_game_room_game_card_pile_id",
     "FOREIGN KEY(game_card_pile_game_card_pile_id) REFERENCES game_card_pile(game_card_pile_id)",
-  );
-
-  pgm.addConstraint(
-    "users",
-    "fk_users_game_room_id",
-    "FOREIGN KEY(game_room_game_room_id) REFERENCES game_room(game_room_id)",
   );
 
   pgm.addConstraint(

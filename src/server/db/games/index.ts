@@ -12,7 +12,7 @@ export const create = async (
   minPlayers: number,
   maxPlayers: number,
   password: string,
-  user_id: number,
+  host_id: number,
 ) => {
   // 1. Create deck
   const { deck_id } = await db.one<{ deck_id: number }>(CREATE_DECK_SQL);
@@ -23,10 +23,19 @@ export const create = async (
   // 3. Create game_room using the same id for both deck and pile
   const { game_room_id } = await db.one<{ game_room_id: number }>(
     CREATE_GAME_ROOM_SQL,
-    [deck_id, deck_id, deck_id, game_name, minPlayers, maxPlayers, password],
+    [
+      deck_id,
+      host_id,
+      deck_id,
+      deck_id,
+      game_name,
+      minPlayers,
+      maxPlayers,
+      password,
+    ],
   );
 
-  await db.none(ADD_PLAYER, [game_room_id, user_id]);
+  await db.none(ADD_PLAYER, [game_room_id, host_id]);
   return game_room_id;
 };
 
@@ -47,12 +56,25 @@ export const join = async (
   return playerCount;
 };
 
-// In src/server/db/games/index.ts
 export const getGameNameById = async (gameId: number) => {
   return db.one(
     "SELECT game_room_name FROM game_room WHERE game_room_id = $1",
     [gameId],
   );
 };
+
+// export const isHost = async (user_id: number, gameId: number) => {
+//   // Adjust column names as needed
+//   const { host_id } = await db.one(
+//     "SELECT host_id FROM game_room WHERE game_room_id = $1",
+//     [gameId]
+//   );
+//   return host_id === user_id;
+// };
+
+// export const deleteGame = async (gameId: number) => {
+//   // Delete related data first if needed (cards, messages, etc.)
+//   await db.none("DELETE FROM game_room WHERE game_room_id = $1", [gameId]);
+// };
 
 export default { create, join, getGameNameById };

@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/create", async (request: Request, response: Response) => {
   // @ts-ignore
-  const user_id = request.session?.user_id as number;
+  const host_id = request.session?.user_id as number;
   const { game_name, minPlayers, maxPlayers, password } = request.body;
 
   try {
@@ -16,7 +16,7 @@ router.post("/create", async (request: Request, response: Response) => {
       minPlayers,
       maxPlayers,
       password,
-      user_id,
+      host_id,
     );
     response.redirect(`/games/${gameId}`);
   } catch (error: any) {
@@ -57,6 +57,25 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
     response.redirect("/lobby");
   }
 });
+
+// router.post("/leave/:gameId", async (request: Request, response: Response) => {
+//   const { gameId } = request.params;
+//   // @ts-ignore
+//   const user_id = request.session.user_id;
+
+//   // Check if the user is the host (creator) of the game
+//   const isHost = await Game.isHost(user_id, gameId);
+
+//   if (isHost) {
+//     // Delete the game and related data
+//     await Game.deleteGame(gameId);
+//   } else {
+//     // Optionally: just remove the user from the game
+//     await Game.leaveGame(user_id, gameId);
+//   }
+
+//   response.redirect("/lobby");
+// });
 
 router.get("/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
