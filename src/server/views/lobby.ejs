@@ -3,14 +3,17 @@
 
 <head>
     <title>Gator Tots BS Lobby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
     <%- include('shared/head') %>
         <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+
 </head>
 
 <body id="lobby">
 
     <div id="container">
         <%- include('shared/menu') %>
+
 
             <h1> Welcome, <%= username %>, to the BS Lobby!</h1>
             <br>
@@ -74,6 +77,7 @@
 
             <%- include("games/create-form") %>
                 <%- include('shared/templates') %>
+
     </div>
 
     <script src="/js/lobby.js"></script>
