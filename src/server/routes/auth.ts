@@ -65,8 +65,6 @@ router.post("/login", async (request: Request, response: Response) => {
       // Otherwise, go to the lobby
       return response.redirect("/lobby");
     }
-
-    response.redirect("/lobby");
   } catch (error) {
     console.error("Login error: ", error);
     response.render("auth/login", { error: "Invalid email or password" });
