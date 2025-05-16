@@ -32,7 +32,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     created_at: { type: "timestamp", default: pgm.func("now()") },
     updated_at: { type: "timestamp", default: pgm.func("now()") },
     game_room_id: { type: "integer" },
-    game_room_game_room_id: { type: "integer" },
   });
 
   pgm.createTable("card", {
