@@ -54,4 +54,4 @@ TO-DO:
 
   - (Game instance is deleted from db?)
 
-- Implement chat for each game lobby
+~~- Implement chat for each game lobby~~
