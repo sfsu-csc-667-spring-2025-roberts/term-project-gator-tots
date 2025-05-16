@@ -50,6 +50,21 @@ router.post("/login", async (request: Request, response: Response) => {
     request.session.user_id = user_id; // store userId in session
     // @ts-ignore
     request.session.username = username;
+    // @ts-ignore
+    const user = await db.oneOrNone(
+      "SELECT game_room_id FROM users WHERE user_id = $1",
+      // @ts-ignore
+      [request.session.user_id],
+    );
+
+    // If user is already in a game, redirect to game_room instead of lobby
+    if (user && user.game_room_id) {
+      // Redirect to the game page if in a game
+      return response.redirect(`/games/${user.game_room_id}`);
+    } else {
+      // Otherwise, go to the lobby
+      return response.redirect("/lobby");
+    }
 
     response.redirect("/lobby");
   } catch (error) {
