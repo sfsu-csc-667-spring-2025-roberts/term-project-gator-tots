@@ -17,7 +17,7 @@
       Game name: <%= game_name %>
 
         <div>
-          <h2>Current Players:</h2>
+          <h2>Current Players <%=players.length %>/<%= max_players %>:</h2>
           <ul>
             <% players.forEach(function(player) { %>
               <li>
@@ -26,6 +26,12 @@
               <% }); %>
           </ul>
         </div>
+        <button class="start-btn" <% if (players.length < min_players) { %>
+          disabled
+          title="Need at least <%= min_players %> players to start"
+            <% } %>>
+              Start Game
+        </button>
   </div>
 </body>
 

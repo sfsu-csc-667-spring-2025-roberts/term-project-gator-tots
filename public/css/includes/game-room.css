@@ -1,0 +1,19 @@
+.start-btn {
+  background-color: #6adf86;
+  color: white;
+  border: none;
+  padding: 0.7em 1.5em;
+  border-radius: 5px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    opacity 0.2s;
+}
+
+.start-btn:disabled {
+  background-color: #ff4242;
+  color: #ffffff;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

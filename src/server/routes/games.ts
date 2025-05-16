@@ -2,7 +2,7 @@ import express from "express";
 import { Request, Response } from "express";
 
 import { Game } from "../db";
-import { getAvailableGames } from "../db/games";
+import { getAvailableGames, getGameInfo } from "../db/games";
 
 const router = express.Router();
 
@@ -144,6 +144,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
 
   const game = await Game.getGameNameById(Number(gameId));
   const players = await Game.getPlayersInGame(Number(gameId));
+  const gameInfo = await Game.getGameInfo(Number(gameId));
 
   if (!game || !game.game_room_name) {
     // Game not found, redirect to lobby or show an error
@@ -159,6 +160,8 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     game_name: game_room_name,
     isHost,
     players,
+    min_players: gameInfo.min_players,
+    max_players: gameInfo.max_players,
   });
 });
 

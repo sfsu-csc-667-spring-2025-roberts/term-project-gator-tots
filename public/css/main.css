@@ -13,6 +13,8 @@
 @import url("/css/includes/lobby.css");
 @import url("/css/includes/create-game-form.css");
 
+@import url("/css/includes/game-room.css");
+
 body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: var(--font-size);

@@ -127,7 +127,9 @@ export const getPlayersInGame = async (gameId: number) => {
 
 export const getGameInfo = async (gameId: number) => {
   return db.oneOrNone(
-    "SELECT max_players FROM game_room WHERE game_room_id = $1",
+    `SELECT min_players, max_players, game_room_name, game_room_password
+     FROM game_room
+     WHERE game_room_id = $1`,
     [gameId],
   );
 };
