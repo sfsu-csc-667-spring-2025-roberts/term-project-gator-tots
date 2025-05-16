@@ -1,45 +1,84 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Gator Tot's BS Game Lobby</title>
-    <%- include('shared/head') %>
-  </head>
-  <body>
-    <div id="container">
-      <%- include('shared/menu') %>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Gator Tot's BS Game Lobby</title>
+  <%- include('shared/head') %>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <%- include('shared/menu') %>
       <h1>
-        
+
         Welcome, <%= username %>!
       </h1>
 
       Game name: <%= game_name %>
-    </div>
-  </body>
 
+        <div>
+          <h2>Current Players <%=players.length %>/<%= max_players %>:</h2>
+          <ul>
+            <% players.forEach(function(player) { %>
+              <li>
+                <%= player.username %>
+              </li>
+              <% }); %>
+          </ul>
+        </div>
+        <button class="start-btn" <% if (players.length < min_players) { %>
+          disabled
+          title="Need at least <%= min_players %> players to start"
+            <% } %>>
+              Start Game
+        </button>
+  </div>
+
+
+  
+</body>
+
+<div id="chat-window">
+  <ul id="chat-messages"></ul>
+  <form id="chat-form">
+    <input type="text" id="chat-input" autocomplete="off" placeholder="Type a message..." />
+    <button type="submit">Send</button>
+  </form>
+</div>
 <script>
-  const GAME_ID = "<%= gameId %>";
+  const roomId = "<%= gameId %>";
+  const socket = io();
 
-  window.addEventListener("beforeunload", function (e) {
-    // Try to detect navigation type using PerformanceNavigationTiming
-    let navType = "navigate";
-    if (performance.getEntriesByType) {
-      const navEntries = performance.getEntriesByType("navigation");
-      if (navEntries.length > 0) {
-        navType = navEntries[0].type;
-      }
-    } else if (performance.navigation) {
-      // Deprecated fallback
-      switch (performance.navigation.type) {
-        case 1: navType = "reload"; break;
-        case 2: navType = "back_forward"; break;
-        default: navType = "navigate";
-      }
-    }
-
-    // Only send leave if NOT a reload
-    if (navType !== "reload") {
-      navigator.sendBeacon(`/games/leave/${GAME_ID}`);
-    }
+  // Listen for new messages
+  socket.on(`chat:message:${roomId}`, function(data) {
+    const li = document.createElement("li");
+    li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
+    document.getElementById("chat-messages").appendChild(li);
   });
+
+  // Send message
+  document.getElementById("chat-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const input = document.getElementById("chat-input");
+    fetch(`/chat/${roomId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input.value }),
+    });
+    input.value = "";
+  });
+
+  // Optionally, load previous messages
+  fetch(`/chat/${roomId}/messages`)
+    .then(res => res.json())
+    .then(messages => {
+      messages.forEach(msg => {
+        const li = document.createElement("li");
+        li.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.username}: ${msg.message_content}`;
+        document.getElementById("chat-messages").appendChild(li);
+      });
+    });
 </script>
+
 </html>

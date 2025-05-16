@@ -28,7 +28,7 @@
                         <div class="modal-content">
                             <span class="close-button">&times;</span>
                             <h2>Create a New Game</h2>
-                            <form id="create-game-form" method="post" action="/games/create" >
+                            <form id="create-game-form" method="post" action="/games/create">
                                 <label for="game-name">Game Name:</label>
                                 <input type="text" id="game_name" name="game_name" required />
 
@@ -49,6 +49,7 @@
                     </div>
 
                     <h2>✨ Join a Game</h2>
+                    <!-- Show current games (if any) -->
                     <ul id="available-games">
                         <% if (games && games.length> 0) { %>
                             <% games.forEach(function(game) { %>
@@ -64,6 +65,12 @@
                                         <input type="text" name="password" placeholder="Password?" />
                                         <button type="submit">Join</button>
                                     </form>
+                                    <!-- (Warning) message on joining games -->
+                                    <% if (warning) { %>
+                                        <div class="warning">
+                                            <%= warning %>
+                                        </div>
+                                        <% } %>
                                 </li>
                                 <% }); %>
                                     <% } else { %>

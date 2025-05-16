@@ -11,6 +11,9 @@ const chatInput = document.querySelector<HTMLInputElement>("#chat input");
 const loadMessages = async () => {
   try {
     const roomId = getRoomId();
+
+    // Join socket room for this game
+    socket.emit("joinRoom", roomId);
     const response = await fetch(`/chat/${roomId}/messages`);
     const messages = await response.json();
 
@@ -48,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadMessages();
 });
 
+// Listen for messages for specific room
 socket.on(
   `chat:message:${getRoomId()}`,
   ({ message, sender, timestamp }: ChatMessage) => {

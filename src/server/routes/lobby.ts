@@ -16,11 +16,15 @@ router.get("/", async (request: Request, response: Response) => {
       [user_id],
     );
     const games = await getAvailableGames();
+
+    // Get warning from query string if present
+    const warning = request.query.warning;
     // Render the lobby view with the username
     response.render("lobby", {
       // @ts-ignore
       username: request.session?.username,
       games,
+      warning,
     });
   } catch (error) {
     console.error("Error fetching username:", error);
