@@ -51,6 +51,18 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   // @ts-ignore
   const user_id = request.session.user_id;
 
+  // Get current player count and max players
+  const gameInfo = await Game.getGameInfo(Number(gameId)); // You need to implement this
+  const currentPlayers = await Game.getPlayerCount(Number(gameId)); // Should return { count: number }
+
+  if (!gameInfo) {
+    return response.redirect("/lobby");
+  }
+
+  if (currentPlayers.count >= gameInfo.max_players) {
+    return response.redirect("/lobby?warning=Game%20full");
+  }
+
   try {
     const playerCount = await Game.join(user_id, parseInt(gameId), password);
     console.log({ playerCount });
