@@ -113,6 +113,10 @@ export const getPlayerCount = async (gameId: number) => {
   );
 };
 
+export const getPlayersInGame = async (gameId: number) => {
+  return db.any("SELECT username FROM users WHERE game_room_id = $1", [gameId]);
+};
+
 export default {
   create,
   join,
@@ -121,4 +125,5 @@ export default {
   deleteGame,
   leaveGame,
   getPlayerCount,
+  getPlayersInGame,
 };
