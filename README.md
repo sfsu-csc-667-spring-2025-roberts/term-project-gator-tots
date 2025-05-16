@@ -17,20 +17,20 @@ How to Migrate GatorTotsDB after Postgress install
 
 TO-DO:
 
-- Implement game creation feature
+~~- Implement game creation feature~~
 
-  - create field where game instances show in lobby with host and join buttons
-  - Show game instance with 'Game Name' and players (x/y) where x is current number of
-    players and y is the max.
+ ~~- create field where game instances show in lobby with host and join buttons~~
+  ~~- Show game instance with 'Game Name' and players (x/y) where x is current number of~~
+    ~~players and y is the max.~~
     - password protected games would be denoted with a _, e.g. Game Lobby 1_ (3/8)
-  - create game-creation form
-    - Game Name: String
-    - Password (optional): String
-    - Min players (minimum 3): integer
-    - Max Players (maximum 8): integer
-    - Submit button 'Create Game'
-  - make sure data is added to db upon creation
-  - route game join and password prompt if game is protected
+  ~~- create game-creation form~~
+    ~~- Game Name: String~~
+    ~~- Password (optional): String~~
+    ~~- Min players (minimum 3): integer~~
+    ~~- Max Players (maximum 8): integer~~
+    ~~- Submit button 'Create Game'~~
+  ~~- make sure data is added to db upon creation~~
+  ~~- route game join and password prompt if game is protected~~
   - add 'start game' feature which initializes start of game
     - alternative: only have num_players field and game starts automatically when desired number of
       players is reached.
