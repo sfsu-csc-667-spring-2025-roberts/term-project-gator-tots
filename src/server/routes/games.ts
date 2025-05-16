@@ -7,22 +7,35 @@ const router = express.Router();
 
 router.post("/create", async (request: Request, response: Response) => {
   // @ts-ignore
-  const user_id = request.session?.user_id as number; //  const { id: user_id } = request.session.user_id;
-  const { name, minPlayers, maxPlayers, password } = request.body;
+  const user_id = request.session?.user_id as number;
+  const { game_name, minPlayers, maxPlayers, password } = request.body;
 
   try {
     const gameId = await Game.create(
-      name,
+      game_name,
       minPlayers,
       maxPlayers,
       password,
       user_id,
     );
-
     response.redirect(`/games/${gameId}`);
-  } catch (error) {
+  } catch (error: any) {
+    // Check for unique constraint violation (Postgres error code 23505)
+    if (error.code === "23505") {
+      // Render the form again with a warning message
+      return response.render("lobby", {
+        warning:
+          "A game with that name already exists. Please choose another name.",
+        game_name,
+        minPlayers,
+        maxPlayers,
+        password,
+        roomId: 0,
+        // @ts-ignore
+        username: request.session?.username,
+      });
+    }
     console.log({ error });
-
     response.redirect("/lobby");
   }
 });
@@ -45,14 +58,16 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   }
 });
 
-router.get("/:gameId", (request: Request, response: Response) => {
+router.get("/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
 
   // @ts-ignore
   const username = request.session.username;
 
+  const { game_room_name } = await Game.getGameNameById(Number(gameId));
+
   // @ts-ignore
-  response.render("games", { gameId, username });
+  response.render("games", { gameId, username, game_name: game_room_name });
 });
 
 export default router;

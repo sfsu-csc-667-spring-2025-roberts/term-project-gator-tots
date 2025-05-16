@@ -4,7 +4,6 @@
 <head>
     <title>Gator Tots BS Lobby</title>
     <%- include('shared/head') %>
-        <script src="/js/lobby.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
     <%- include('shared/head') %>    
 </head>
@@ -46,16 +45,16 @@
                     <h2>Create a New Game</h2>
                     <form id="create-game-form" method="post" action="/games/create">
                         <label for="game-name">Game Name:</label>
-                        <input type="text" id="game-name" name="gameName" required />
+                        <input type="text" id="game_name" name="game_name" required />
 
                         <label for="password">Password (Optional):</label>
                         <input type="password" id="password" name="password" />
 
                         <label for="min-players">Min Players:</label>
-                        <input type="number" id="min-players" name="minPlayers" min="3" max="8" required />
+                        <input type="number" id="min-players" name="minPlayers" placeholder="3" min="3" max="8" required />
 
                         <label for="max-players">Max Players:</label>
-                        <input type="number" id="max-players" name="maxPlayers" min="3" max="8" required />
+                        <input type="number" id="max-players" name="maxPlayers" placeholder="5" min="3" max="8" required />
 
                         <button id="create-game" type="submit">Create Game</button>
                     </form>
@@ -94,6 +93,7 @@
         <%- include("games/create-form") %>
         <%- include('shared/templates') %>
     </div>
+    
     <script src="/js/lobby.js"></script>
 </body>
 
