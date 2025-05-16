@@ -15,4 +15,12 @@
       Game name: <%= game_name %>
     </div>
   </body>
+
+  <script>
+  const IS_HOST = <%= isHost ? "true" : "false" %>;
+  const GAME_ID = <%= gameId %>;
+  window.addEventListener("beforeunload", function (e) {
+      navigator.sendBeacon(`/games/leave/${GAME_ID}`);    
+  });
+</script>
 </html>

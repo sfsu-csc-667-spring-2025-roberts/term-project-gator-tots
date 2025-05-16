@@ -1,6 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import db from "../db/connection"; // Import your database connection
 
 import User from "../db/users";
 
@@ -57,6 +58,12 @@ router.post("/login", async (request: Request, response: Response) => {
 });
 
 router.get("/logout", async (request: Request, response: Response) => {
+  // @ts-ignore
+  const user_id = request.session.user_id;
+  // Remove user from game if in one
+  await db.none("UPDATE users set game_room_id = NULL WHERE user_id = $1", [
+    user_id,
+  ]);
   request.session.destroy(() => {
     response.redirect("/");
   });

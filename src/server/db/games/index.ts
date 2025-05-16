@@ -77,18 +77,27 @@ export const getAvailableGames = async () => {
      ORDER BY gr.game_room_id`,
   );
 };
-// export const isHost = async (user_id: number, gameId: number) => {
-//   // Adjust column names as needed
-//   const { host_id } = await db.one(
-//     "SELECT host_id FROM game_room WHERE game_room_id = $1",
-//     [gameId]
-//   );
-//   return host_id === user_id;
-// };
 
-// export const deleteGame = async (gameId: number) => {
-//   // Delete related data first if needed (cards, messages, etc.)
-//   await db.none("DELETE FROM game_room WHERE game_room_id = $1", [gameId]);
-// };
+export const isHost = async (user_id: number, gameId: number) => {
+  // Adjust column names as needed
+  const { host_id } = await db.one(
+    "SELECT host_id FROM game_room WHERE game_room_id = $1",
+    [gameId],
+  );
+  return host_id === user_id;
+};
 
-export default { create, join, getGameNameById };
+export const deleteGame = async (gameId: number) => {
+  // Delete related data first if needed (cards, messages, etc.)
+  await db.none("DELETE FROM game_room WHERE game_room_id = $1", [gameId]);
+};
+
+export const leaveGame = async (user_id: number, gameId: number) => {
+  // Delete game_room_id from user to leave game
+  await db.none(
+    "UPDATE users SET game_room_id = NULL WHERE user_id = $1 AND game_room_id = $2",
+    [user_id, gameId],
+  );
+};
+
+export default { create, join, getGameNameById, isHost, deleteGame, leaveGame };

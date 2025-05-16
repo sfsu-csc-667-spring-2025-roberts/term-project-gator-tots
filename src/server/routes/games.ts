@@ -60,35 +60,42 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   }
 });
 
-// router.post("/leave/:gameId", async (request: Request, response: Response) => {
-//   const { gameId } = request.params;
-//   // @ts-ignore
-//   const user_id = request.session.user_id;
+router.post("/leave/:gameId", async (request: Request, response: Response) => {
+  const { gameId } = request.params;
 
-//   // Check if the user is the host (creator) of the game
-//   const isHost = await Game.isHost(user_id, gameId);
+  const numericGameId = Number(gameId);
+  // @ts-ignore
+  const user_id = request.session.user_id;
 
-//   if (isHost) {
-//     // Delete the game and related data
-//     await Game.deleteGame(gameId);
-//   } else {
-//     // Optionally: just remove the user from the game
-//     await Game.leaveGame(user_id, gameId);
-//   }
-
-//   response.redirect("/lobby");
-// });
+  const isHost = await Game.isHost(user_id, numericGameId);
+  if (isHost) {
+    await Game.deleteGame(numericGameId);
+  } else {
+    await Game.leaveGame(user_id, numericGameId);
+  }
+  response.redirect("/lobby");
+});
 
 router.get("/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
 
   // @ts-ignore
   const username = request.session.username;
+  // @ts-ignore
+  const user_id = request.session.user_id;
 
-  const { game_room_name } = await Game.getGameNameById(Number(gameId));
+  const { game_room_name, game_room_host_user_id } = await Game.getGameNameById(
+    Number(gameId),
+  );
+  const isHost = user_id === game_room_host_user_id;
 
   // @ts-ignore
-  response.render("games", { gameId, username, game_name: game_room_name });
+  response.render("games", {
+    gameId,
+    username,
+    game_name: game_room_name,
+    isHost,
+  });
 });
 
 export default router;
