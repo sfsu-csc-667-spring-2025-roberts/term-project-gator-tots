@@ -77,7 +77,7 @@
                                         <%= game.game_room_name %>
                                     </span>
                                     <span class="game-players">
-                                        <%= game.min_players %>/<%= game.max_players %> players
+                                        <%= game.current_players %>/<%= game.max_players %> players
                                     </span>
                                     <form method="post" action="/games/join/<%= game.game_room_id %>">
                                         <input type="text" name="password" placeholder="Password?" />
