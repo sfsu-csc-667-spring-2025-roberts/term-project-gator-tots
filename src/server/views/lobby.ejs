@@ -5,9 +5,8 @@
     <title>Gator Tots BS Lobby</title>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
     <%- include('shared/head') %>
-    <script src="/js/lobby.js"></script>
-    
-    
+        <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+
 </head>
 
 <body id="lobby">
@@ -15,56 +14,73 @@
     <div id="container">
         <%- include('shared/menu') %>
 
-        <h1> Welcome to the BS Lobby!</h1>
-        <br>
 
-        <div id="content">
-            <section id="games-listing">
-                <h2>🃏 Your Games</h2>
-                <ul id="my-games">
-                    <li>
-                        <span class="status waiting">Waiting</span>
-                        <span class="game-name">Game Name</span>
-                        <span class="game-players">2/4 players</span>
-                        <a href="/games/42" class="button" target="_blank">Join</a>
-                    </li>
-                    <li>
-                        <span class="status playing">Playing</span>
-                        <span class="game-name">Game Name</span>
-                        <span class="game-players">4/4 players</span>
-                        <a href="/games/42" class="button" target="_blank">Join</a>
-                    </li>
-                </ul>
+            <h1> Welcome, <%= username %>, to the BS Lobby!</h1>
+            <br>
 
-                <h2>✨ Join a New Game</h2>
-                <ul id="available-games">
-                    <li>
-                        <span class="status waiting">Waiting</span>
-                        <span class="game-name">Game 1</span>
-                        <span class="game-players">1/4 players</span>
-                        <form method="post" action="/games/join/1">
-                            <input type="text" name="password" placeholder="Password?" />
-                            <button type="submit">Join</button>
-                        </form>
-                    </li>
-                    <li>
-                        <span class="status waiting">Waiting</span>
-                        <span class="game-name">Game 2</span>
-                        <span class="game-players">2/4 players</span>
-                        <form method="post" action="/games/join/2">
-                            <button type="submit">Join</button>
-                        </form>
-                    </li>
-                </ul>
-            </section>
+            <div id="content">
+                <section id="games-listing">
+                    <h2 style="display: flex; align-items: center; justify-content: space-between;">
+                        🃏 Your Games
+                        <button id="open-create-modal">Create Game</button>
+                    </h2>
+                    <div id="create-game-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <span class="close-button">&times;</span>
+                            <h2>Create a New Game</h2>
+                            <form id="create-game-form" method="post" action="/games/create" >
+                                <label for="game-name">Game Name:</label>
+                                <input type="text" id="game_name" name="game_name" required />
 
-            <%- include('shared/chat') %>
-        </div>
+                                <label for="password">Password (Optional):</label>
+                                <input type="password" id="password" name="password" />
 
-        <%- include("games/create-form") %>
-        <%- include('shared/templates') %>
+                                <label for="min-players">Min Players:</label>
+                                <input type="number" id="min-players" name="minPlayers" placeholder="3" min="3" max="8"
+                                    required />
+
+                                <label for="max-players">Max Players:</label>
+                                <input type="number" id="max-players" name="maxPlayers" placeholder="5" min="3" max="8"
+                                    required />
+
+                                <button id="create-game" type="submit">Create Game</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h2>✨ Join a Game</h2>
+                    <ul id="available-games">
+                        <% if (games && games.length> 0) { %>
+                            <% games.forEach(function(game) { %>
+                                <li>
+                                    <span class="status waiting">Waiting</span>
+                                    <span class="game-name">
+                                        <%= game.game_room_name %>
+                                    </span>
+                                    <span class="game-players">
+                                        <%= game.current_players %>/<%= game.max_players %> players
+                                    </span>
+                                    <form method="post" action="/games/join/<%= game.game_room_id %>">
+                                        <input type="text" name="password" placeholder="Password?" />
+                                        <button type="submit">Join</button>
+                                    </form>
+                                </li>
+                                <% }); %>
+                                    <% } else { %>
+                                        <li>No games available.</li>
+                                        <% } %>
+                    </ul>
+                </section>
+
+                <%- include('shared/chat') %>
+            </div>
+
+            <%- include("games/create-form") %>
+                <%- include('shared/templates') %>
+
     </div>
 
+    <script src="/js/lobby.js"></script>
 </body>
 
 </html>

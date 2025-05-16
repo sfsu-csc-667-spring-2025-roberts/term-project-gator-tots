@@ -1,7 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
 import { ChatMessage } from "global";
-import db from "../db/connection"; // Import your database connection
+import db from "../db/connection";
 import socket from "../config/sockets";
 import { cloneTemplate, getRoomId } from "../../client/utils";
 

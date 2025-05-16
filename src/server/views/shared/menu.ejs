@@ -1,8 +1,14 @@
 <menu>
    <ul class="menu">
-    <li><a class="button-link" href="/lobby">Lobby</a></li>
+    <% if (typeof gameId !== "undefined") { %>
+      <li>
+        <form method="post" action="/games/leave/<%= gameId %>" style="display:inline;">
+          <button type="submit" class="button-link" style="background:none;border:none;padding:0;margin:0;cursor:pointer;">Lobby</button>
+        </form>
+      </li>
+    <% } else { %>
+      <li><a class="button-link" href="/lobby">Lobby</a></li>
+    <% } %>
     <li><a class="button-link" href="/auth/logout">Logout</a></li>
-    
-
    </ul> 
 </menu>

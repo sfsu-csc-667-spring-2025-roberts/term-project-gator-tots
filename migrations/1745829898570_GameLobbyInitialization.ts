@@ -33,6 +33,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     )
     ON CONFLICT (game_room_id) DO NOTHING;
   `);
+
+  // Set the sequence to start at 1 (so next insert is 1)
+  pgm.sql(
+    `SELECT setval(pg_get_serial_sequence('game_room', 'game_room_id'), 1, false);`,
+  );
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

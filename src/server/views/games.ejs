@@ -9,10 +9,37 @@
       <%- include('shared/menu') %>
       <h1>
         
-        Welcome <%= username %>
+        Welcome, <%= username %>!
       </h1>
 
-      Game page <%= gameId %>
+      Game name: <%= game_name %>
     </div>
   </body>
+
+<script>
+  const GAME_ID = "<%= gameId %>";
+
+  window.addEventListener("beforeunload", function (e) {
+    // Try to detect navigation type using PerformanceNavigationTiming
+    let navType = "navigate";
+    if (performance.getEntriesByType) {
+      const navEntries = performance.getEntriesByType("navigation");
+      if (navEntries.length > 0) {
+        navType = navEntries[0].type;
+      }
+    } else if (performance.navigation) {
+      // Deprecated fallback
+      switch (performance.navigation.type) {
+        case 1: navType = "reload"; break;
+        case 2: navType = "back_forward"; break;
+        default: navType = "navigate";
+      }
+    }
+
+    // Only send leave if NOT a reload
+    if (navType !== "reload") {
+      navigator.sendBeacon(`/games/leave/${GAME_ID}`);
+    }
+  });
+</script>
 </html>
