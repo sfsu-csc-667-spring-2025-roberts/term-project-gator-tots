@@ -43,6 +43,7 @@ export const join = async (
   userId: number,
   gameId: number,
   password: string = "",
+  username?: string,
 ) => {
   const { playerCount } = await db.one<{ playerCount: number }>(
     CONDITIONALLY_JOIN_SQL,
@@ -50,6 +51,7 @@ export const join = async (
       gameId,
       userId,
       password,
+      username,
     },
   );
 

@@ -45,9 +45,11 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   const { password } = request.body;
   // @ts-ignore
   const username = request.session.username;
+  // @ts-ignore
+  const user_id = request.session.user_id;
 
   try {
-    const playerCount = await Game.join(username, parseInt(gameId), password);
+    const playerCount = await Game.join(user_id, parseInt(gameId), password);
     console.log({ playerCount });
 
     response.redirect(`/games/${gameId}`);

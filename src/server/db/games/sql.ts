@@ -24,24 +24,21 @@ WHERE user_id = $2
 `;
 
 export const CONDITIONALLY_JOIN_SQL = `
-INSERT INTO game_users (game_id, user_id)
-SELECT $(gameId), $(userId) 
-WHERE NOT EXISTS (
-  SELECT 'value-doesnt-matter' 
-  FROM game_users 
-  WHERE game_id=$(gameId) AND user_id=$(userId)
-)
-AND (
-  SELECT COUNT(*) FROM games WHERE id=$(gameId) AND password=$(password)
-) = 1
-AND (
-  (
-    SELECT COUNT(*) FROM game_users WHERE game_id=$(gameId)
-  ) < (
-    SELECT max_players FROM games WHERE id=$(gameId)
+UPDATE users
+SET game_room_id = $(gameId)
+WHERE user_id = $(userId)
+  AND (
+    SELECT COUNT(*) FROM users WHERE game_room_id = $(gameId)
+  ) <= (
+    SELECT max_players FROM game_room WHERE game_room_id = $(gameId)
   )
-)
+  AND (
+    SELECT COUNT(*) FROM users WHERE user_id = $(userId) AND game_room_id IS NULL
+  ) = 1
+  AND (
+    SELECT COUNT(*) FROM game_room WHERE game_room_id = $(gameId) AND game_room_password = $(password)
+  ) = 1
 RETURNING (
-  SELECT COUNT(*) AS playerCount FROM game_users WHERE game_id=$(gameId)
-)
+  SELECT COUNT(*) FROM users WHERE game_room_id = $(gameId)
+) AS playerCount
 `;
