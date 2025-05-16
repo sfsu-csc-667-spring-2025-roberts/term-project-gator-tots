@@ -16,7 +16,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_room_id: { type: "integer", primaryKey: true },
     deck_deck_id: { type: "integer", notNull: true },
     game_card_pile_game_card_pile_id: { type: "integer", notNull: true },
-    game_room_password: { type: "varchar(45)" },
+    game_room_password: { type: "varchar(45)", default: null },
     game_room_name: { type: "varchar(45)", unique: true },
     game_room_host_user_id: { type: "integer" },
     min_players: { type: "integer" },

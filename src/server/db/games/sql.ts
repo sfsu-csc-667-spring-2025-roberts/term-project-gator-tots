@@ -36,8 +36,13 @@ WHERE user_id = $(userId)
     SELECT COUNT(*) FROM users WHERE user_id = $(userId) AND game_room_id IS NULL
   ) = 1
   AND (
-    SELECT COUNT(*) FROM game_room WHERE game_room_id = $(gameId) AND game_room_password = $(password)
-  ) = 1
+  SELECT COUNT(*) FROM game_room
+  WHERE game_room_id = $(gameId)
+    AND (
+      game_room_password IS NULL
+      OR game_room_password = $(password)
+    )
+) = 1
 RETURNING (
   SELECT COUNT(*) FROM users WHERE game_room_id = $(gameId)
 ) AS playerCount

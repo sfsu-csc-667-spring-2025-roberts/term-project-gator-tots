@@ -45,7 +45,7 @@ export const join = async (
   password: string = "",
   username?: string,
 ) => {
-  const { playerCount } = await db.one<{ playerCount: number }>(
+  const result = await db.oneOrNone<{ playerCount: number }>(
     CONDITIONALLY_JOIN_SQL,
     {
       gameId,
@@ -55,7 +55,15 @@ export const join = async (
     },
   );
 
-  return playerCount;
+  if (!result) {
+    // Handle join failure (e.g., wrong password or other condition)
+    const err = new Error("Join failed");
+    // @ts-ignore
+    err.code = "JOIN_FAILED";
+    throw err;
+  }
+
+  return result.playerCount;
 };
 
 export const getGameNameById = async (gameId: number) => {
@@ -124,6 +132,13 @@ export const getGameInfo = async (gameId: number) => {
   );
 };
 
+// In your db/games/index.ts
+export const getUserById = async (userId: number) => {
+  return db.oneOrNone("SELECT game_room_id FROM users WHERE user_id = $1", [
+    userId,
+  ]);
+};
+
 export default {
   create,
   join,
@@ -134,4 +149,5 @@ export default {
   getPlayerCount,
   getPlayersInGame,
   getGameInfo,
+  getUserById,
 };
