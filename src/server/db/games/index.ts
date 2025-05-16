@@ -74,6 +74,7 @@ export const getAvailableGames = async () => {
      WHERE gr.game_started = FALSE
        AND gr.game_room_name != 'Lobby'
      GROUP BY gr.game_room_id, gr.game_room_name, gr.max_players
+     HAVING COUNT(u.user_id) > 0
      ORDER BY gr.game_room_id`,
   );
 };
