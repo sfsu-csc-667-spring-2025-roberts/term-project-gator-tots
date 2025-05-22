@@ -36,7 +36,6 @@ TO-DO:
       players is reached.
 
 - Implement game-flow and game-logic
-
   - seat players in order of join
   - once minimum number of players joined, host can 'start game' (see alternative)
   - all cards of one deck are distributed among players in clockwise order (ascending order after the host), starting with host
@@ -54,3 +53,5 @@ TO-DO:
   - winner is declared in chat by game server
 
   - (Game instance is deleted from db?)
+
+~~- Implement chat for each game lobby~~

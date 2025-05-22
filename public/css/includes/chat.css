@@ -5,59 +5,90 @@ section#chat {
   margin: 10px;
   height: 250px;
   width: 400px;
-  grid-row: 7;
-  grid-column: 3;
+  background-color: #ffffff;
+  border: 1px solid #dfe6e9;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  font-family: "Comic Neue", cursive, sans-serif;
 }
 
 section#chat #messages {
-  overflow-y: scroll;
-  border: 1px solid var(--color-border);
-  border-radius: 5px;
-  padding: 5px;
-  margin-bottom: 10px;
-
+  overflow-y: auto;
   background-color: #ecfde4;
-
-  /* Dimensions for chat box */
+  border: 1px solid #dfe6e9;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
   height: 200px;
   min-height: 200px;
+  font-size: 0.9rem;
 }
 
 section#chat #messages .message {
   display: flex;
-  align-items: center;
-  margin-bottom: 5px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
 }
 
 section#chat #messages .message img {
-  margin-right: 10px;
-  height: 20px;
-  width: 20px;
+  height: 24px;
+  width: 24px;
   border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 section#chat #messages .message div {
   display: flex;
   flex-direction: column;
-  font-size: var(--font-size-small);
+  font-size: 0.85rem;
+  color: #2d3436;
+  line-height: 1.2;
 }
 
 section#chat #messages .message div span:last-of-type {
-  font-size: var(--font-size-xsmall);
-  color: var(--color-border-light);
+  font-size: 0.75rem;
+  color: #b2bec3;
 }
 
 section#chat form {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  gap: 10px;
 }
 
 section#chat form input {
   width: 100%;
-  padding: 5px;
-  border: 1px solid var(--color-border);
-  flex-grow: 1;
-  border-radius: 5px;
-  background-color: #ecfde4;
+  padding: 8px 12px;
+  border: 1px solid #dfe6e9;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+section#chat form input:focus {
+  border-color: #6c5ce7;
+  outline: none;
+}
+
+section#chat form button {
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+}
+
+section#chat form button:hover {
+  background-color: #341f97;
+  transform: scale(1.05);
 }
