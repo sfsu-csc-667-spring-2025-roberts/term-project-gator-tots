@@ -1,42 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<div id="container">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/main.js" defer></script>
+    <%- include('shared/head') %>
+</head>
 
-    <head>
-        <title>
-            <%= title %>
-        </title>
-        <script src="/js/main.js" defer></script>
-        <%- include('shared/head') %>
+<body>
 
-    </head>
+    <div id="container">
 
-    <body>
         <div class="header-text">
-            <h1>
-                <%= title %>
-            </h1>
+            <h1><%= title %></h1>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">
+                 Welcome to the game homepage! <br>
+                Please <a class="button-link" href="/auth/login">Login</a> or <a class="button-link" href="/auth/register">Register</a>
+                to get started!
+            </p>
+
+            <img src="/images/Mascot.png" alt="Mascot" style="max-width: 200px;" />
 
         </div>
-        <br>
-        <p>
-            Welcome to the game homepage! Please <a class="button-link" href="/auth/login">Login</a> or <a class="button-link"
-            href="/auth/register">Register</a>
-        </p>
-        
 
-        <!-- <ul>
-            <% for(let i=0; i < 10; i++) { %>
-                <li>Item <%= i %>
-                </li>
-                <% } %>
-        </ul> -->
+    </div>
 
-    </body>
-
-
-</div>
-
+</body>
 
 </html>
