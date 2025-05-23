@@ -36,7 +36,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   });
 
   pgm.createTable("card", {
-    card_id: { type: "integer", primaryKey: true },
     card_rank: { type: "integer" },
     user_user_id: { type: "integer", notNull: true },
     deck_deck_id: { type: "integer", notNull: true },
