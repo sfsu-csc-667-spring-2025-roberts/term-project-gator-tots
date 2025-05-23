@@ -33,6 +33,12 @@
             <% } %>>
               Start Game
         </button>
+        <button id="bs-btn"
+          style="background-color: <%= username !== currentPlayer && !isHost ? '#e74c3c' : '#ccc' %>; color: white;" <%
+          if (username===currentPlayer || isHost) { %>disabled<% } %>
+            >
+            Bullshit!
+        </button>
 
         <div>
           <h2>Your Cards:</h2>
@@ -158,6 +164,17 @@
       }
     });
   });
+
+  document.getElementById('bs-btn').addEventListener('click', function() {
+  fetch(`/games/<%= gameId %>/bs`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  }).then(res => {
+    if (res.ok) {
+      alert("You called Bullshit!");
+    }
+  });
+});
 </script>
 
 

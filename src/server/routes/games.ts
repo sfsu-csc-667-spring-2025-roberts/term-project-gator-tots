@@ -283,4 +283,20 @@ router.get("/:gameId/start-test", async (req, res) => {
   }
 });
 
+router.post("/:gameId/bs", async (req, res) => {
+  const { gameId } = req.params;
+  // @ts-ignore
+  const user_id = req.session.user_id;
+  // TODO: Implement your bluff-checking logic here!
+  // For now, just broadcast a message:
+  const io = req.app.get("io");
+  const user = await Game.getUserById(user_id);
+  io.to(gameId).emit(`chat:message:${gameId}`, {
+    sender: { username: "Server" },
+    message: `${user.username} called Bullshit!`,
+    timestamp: Date.now(),
+  });
+  res.sendStatus(200);
+});
+
 export default router;
