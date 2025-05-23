@@ -213,13 +213,32 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     max_players: gameInfo.max_players,
     userCards,
     currentPlayer: currentPlayer?.username,
+    supposedRank: gameInfo.current_supposed_rank,
   });
 });
 
 router.post("/:gameId/play", async (req, res) => {
+  const io = req.app.get("io");
   const { gameId } = req.params;
-  const { cards } = req.body;
-  // Validate and process the play here...
+  const { cards, pileId } = req.body;
+
+  // Get current supposed rank
+  const gameInfo = await Game.getGameInfo(Number(gameId));
+  let supposedRank = gameInfo.current_supposed_rank || 1;
+
+  // ...validate and process the play...
+
+  // Advance supposed rank (1-13)
+  let nextSupposedRank = supposedRank + 1;
+  if (nextSupposedRank > 13) nextSupposedRank = 1;
+
+  // Update in DB
+  await Game.setSupposedRank(Number(gameId), nextSupposedRank);
+  io.to(gameId).emit("game:supposedRank", { supposedRank: nextSupposedRank });
+
+  // Move cards to pile
+  await Game.moveCardsToPile(cards.map(Number), Number(pileId));
+
   res.sendStatus(200);
 });
 

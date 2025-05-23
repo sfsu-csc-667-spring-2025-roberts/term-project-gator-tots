@@ -67,6 +67,9 @@
             <% if (username !==currentPlayer) { %>
               <div style="color: #888; font-size: 0.9em;">It's <%= currentPlayer %>'s turn.</div>
               <% } %>
+                <h3>Supposed Card: <%= ["A", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J" , "Q" , "K"
+                    ][supposedRank - 1] %>
+                </h3>
         </div>
   </div>
 </body>
@@ -136,11 +139,17 @@
   playBtn.addEventListener('click', () => {
     const selected = Array.from(document.querySelectorAll('.card-checkbox:checked'))
       .map(cb => cb.value);
-    // Send selected cards to server (adjust endpoint as needed)
+
+    // Get the pile ID (set this appropriately for your game)
+    // For example, if you have a hidden input or JS variable:
+    // const gameCardPileId = document.getElementById('pile-id').value;
+    // Or, if you know the pile ID in JS:
+    const gameCardPileId = roomId; // <-- Replace with your actual pile ID logic
+
     fetch(`/games/<%= gameId %>/play`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cards: selected }),
+      body: JSON.stringify({ cards: selected, pileId: gameCardPileId }),
     }).then(res => {
       if (res.ok) {
         // Optionally, clear selection
@@ -150,6 +159,7 @@
     });
   });
 </script>
+
 
 
 <script src="/js/game.js"></script>

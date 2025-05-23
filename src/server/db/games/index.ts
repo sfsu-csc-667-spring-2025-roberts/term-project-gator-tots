@@ -65,6 +65,11 @@ export const join = async (
     throw err;
   }
 
+  // Update last_updated column for this user
+  await db.none(`UPDATE users SET updated_at = NOW() WHERE user_id = $1`, [
+    userId,
+  ]);
+
   return result.playerCount;
 };
 
@@ -124,7 +129,13 @@ export const getPlayerCount = async (gameId: number) => {
 };
 
 export const getPlayersInGame = async (gameId: number) => {
-  return db.any("SELECT username FROM users WHERE game_room_id = $1", [gameId]);
+  return db.any(
+    `SELECT user_id, username, updated_at
+     FROM users
+     WHERE game_room_id = $1
+     ORDER BY updated_at ASC`,
+    [gameId],
+  );
 };
 
 export const getFirstTurnPlayer = async (gameId: number) => {
@@ -199,7 +210,14 @@ export const start = async (gameId: number) => {
   await setFirstPlayer(gameId, firstTurnPlayer.user_user_id);
 };
 
-// filepath: c:\Users\johnb\Documents\CSC 667\term-project-gator-tots\src\server\db\games\index.ts
+export async function setSupposedRank(gameId: number, rank: number) {
+  return db.none(
+    `UPDATE game_room SET current_supposed_rank = $1 WHERE game_room_id = $2`,
+    [rank, gameId],
+  );
+}
+
+// Deal the cards
 export const dealCards = async (gameId: number) => {
   // 1. Get all unassigned cards for this game
   const available_cards = await db.any(
@@ -238,6 +256,35 @@ export const dealCards = async (gameId: number) => {
   await Promise.all(queries);
 };
 
+export async function moveCardsToPile(
+  cardIds: number[],
+  game_card_pile_game_card_pile_id: number,
+) {
+  // Get the card ranks before moving
+  const cardRanks = await db.any(
+    `SELECT card_id, card_rank FROM card WHERE card_id = ANY($1)`,
+    [cardIds],
+  );
+
+  // Move the cards
+  await db.none(
+    `UPDATE card
+     SET user_user_id = NULL, game_card_pile_game_card_pile_id = $2
+     WHERE card_id = ANY($1)`,
+    [cardIds, game_card_pile_game_card_pile_id],
+  );
+
+  // Return the card ranks for further use (e.g., logging, chat message, etc.)
+  return cardRanks;
+}
+
+export async function setCurrentPlayerTurn(gameId: number, userId: number) {
+  return db.none(
+    `UPDATE game_room SET current_players_turn = $1 WHERE game_room_id = $2`,
+    [userId, gameId],
+  );
+}
+
 export default {
   create,
   join,
@@ -254,4 +301,7 @@ export default {
   setFirstPlayer,
   getUserCards,
   getCurrentPlayer,
+  setSupposedRank,
+  moveCardsToPile,
+  setCurrentPlayerTurn,
 };
