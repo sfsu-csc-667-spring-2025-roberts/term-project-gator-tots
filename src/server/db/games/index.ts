@@ -143,6 +143,18 @@ export const getGameInfo = async (gameId: number) => {
   );
 };
 
+export const getCurrentPlayer = async (gameId: number) => {
+  return db.oneOrNone(
+    `
+    SELECT u.username
+    FROM game_room gr
+    JOIN users u ON u.user_id = gr.current_players_turn
+    WHERE gr.game_room_id = $1
+  `,
+    [gameId],
+  );
+};
+
 // In your db/games/index.ts
 export const getUserById = async (userId: number) => {
   return db.oneOrNone("SELECT game_room_id FROM users WHERE user_id = $1", [
@@ -241,4 +253,5 @@ export default {
   dealCards,
   setFirstPlayer,
   getUserCards,
+  getCurrentPlayer,
 };

@@ -91,10 +91,12 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
     const playerCount = await Game.join(user_id, Number(gameId), password);
     // After successful join
     const io = request.app.get("io");
-    const updatedGameInfo = await Game.getGameInfo(Number(gameId));
-    io.to(gameId).emit("game:update", {
-      players: playerCount,
-      gameInfo: updatedGameInfo,
+    // @ts-ignore
+    const username = request.session.username;
+    io.to(gameId).emit(`chat:message:${gameId}`, {
+      sender: { username: "Server" },
+      message: `${username} has joined the game.`,
+      timestamp: Date.now(),
     });
     console.log({ playerCount });
     response.redirect(`/games/${gameId}`);
@@ -162,6 +164,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   const players = await Game.getPlayersInGame(Number(gameId));
   const gameInfo = await Game.getGameInfo(Number(gameId));
   const userCards = await Game.getUserCards(user_id, Number(gameId));
+  const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
 
   if (!game || !game.game_room_name) {
     // Game not found, redirect to lobby or show an error
@@ -174,7 +177,18 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   io.to(gameId).emit("game:update", {
     players,
     gameInfo,
+    userCards,
+    currentPlayer,
   });
+
+  // Emit a server message about whose turn it is
+  if (currentPlayer && currentPlayer.username) {
+    io.to(gameId).emit(`chat:message:${gameId}`, {
+      sender: { username: "Server" },
+      message: `It's ${currentPlayer.username}'s turn!`,
+      timestamp: Date.now(),
+    });
+  }
 
   response.render("games", {
     gameId,
@@ -190,6 +204,18 @@ router.get("/:gameId", async (request: Request, response: Response) => {
 
 router.get("/:gameId/start-test", async (req, res) => {
   const { gameId } = req.params;
+  const io = req.app.get("io");
+  const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
+
+  // Emit a server message about whose turn it is
+  if (currentPlayer && currentPlayer.username) {
+    io.to(gameId).emit(`chat:message:${gameId}`, {
+      sender: { username: "Server" },
+      message: `It's ${currentPlayer.username}'s turn!`,
+      timestamp: Date.now(),
+    });
+  }
+
   try {
     await Game.start(Number(gameId));
     res.json({ success: true, message: "Game started and cards dealt!" });

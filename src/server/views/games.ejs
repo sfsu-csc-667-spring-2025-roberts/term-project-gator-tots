@@ -43,10 +43,7 @@
               <% }); %>
           </ul>
         </div>
-  </div>
-
-
-
+      </div>
 </body>
 
 
@@ -61,6 +58,7 @@
 <script>
   const roomId = "<%= gameId %>";
   const socket = io();
+    socket.emit("joinRoom", roomId);
 
   // Listen for new messages
   socket.on(`chat:message:${roomId}`, function (data) {

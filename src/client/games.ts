@@ -1,3 +1,4 @@
+import { getPlayersInGame, getUserCards } from "../server/db/games";
 import { socket } from "./socket";
 
 // Get the roomId from the template or URL
@@ -11,6 +12,7 @@ socket.emit("joinRoom", roomId);
 socket.on("game:update", (data) => {
   // Update the UI with the new game state
   updateGameInfo(data.gameInfo);
+  getPlayersInGame(data.players);
 });
 
 function updateGameInfo(gameInfo: any) {
