@@ -157,6 +157,13 @@ export const setFirstPlayer = async (gameId: number, userId: number) => {
   );
 };
 
+export const getUserCards = async (userId: number, gameId: number) => {
+  return db.any(
+    "SELECT card_rank FROM card WHERE user_user_id = $1 AND deck_deck_id = $2",
+    [userId, gameId],
+  );
+};
+
 export const start = async (gameId: number) => {
   // Prevent double dealing
   const { count } = await db.one(
@@ -233,4 +240,5 @@ export default {
   start,
   dealCards,
   setFirstPlayer,
+  getUserCards,
 };

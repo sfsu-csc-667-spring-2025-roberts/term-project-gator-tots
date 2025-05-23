@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Gator Tot's BS Game Lobby</title>
   <%- include('shared/head') %>
-  <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -33,10 +33,20 @@
             <% } %>>
               Start Game
         </button>
+
+        <div>
+          <h2>Your Cards:</h2>
+          <ul id="my-cards">
+            <% userCards.forEach(function(card) { %>
+              <li>Card #<%= card.card_rank %>
+              </li>
+              <% }); %>
+          </ul>
+        </div>
   </div>
 
 
-  
+
 </body>
 
 
@@ -53,14 +63,14 @@
   const socket = io();
 
   // Listen for new messages
-  socket.on(`chat:message:${roomId}`, function(data) {
+  socket.on(`chat:message:${roomId}`, function (data) {
     const li = document.createElement("li");
     li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
     document.getElementById("chat-messages").appendChild(li);
   });
 
   // Send message
-  document.getElementById("chat-form").addEventListener("submit", function(e) {
+  document.getElementById("chat-form").addEventListener("submit", function (e) {
     e.preventDefault();
     const input = document.getElementById("chat-input");
     fetch(`/chat/${roomId}`, {
@@ -83,4 +93,5 @@
     });
 </script>
 <script src="/js/game.js"></script>
+
 </html>
