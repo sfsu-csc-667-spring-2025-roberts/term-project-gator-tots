@@ -37,7 +37,7 @@
           <% } %>
             <button id="bs-btn"
               style="background-color: <%= username !== currentPlayer && !isHost ? '#e74c3c' : '#ccc' %>; color: white;"
-              <% if (username===currentPlayer || isHost) { %>disabled<% } %>
+              <% if (username===currentPlayer) { %>disabled<% } %>
                 >
                 Bullshit!
             </button>
