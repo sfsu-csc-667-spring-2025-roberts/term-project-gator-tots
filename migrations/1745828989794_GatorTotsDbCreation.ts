@@ -24,6 +24,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_started: { type: "boolean", default: false },
     game_start_time: { type: "timestamp" },
     current_players_turn: { type: "integer" },
+    current_supposed_rank: { type: "integer", default: 1 },
   });
 
   pgm.createTable("users", {
