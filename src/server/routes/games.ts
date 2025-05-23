@@ -109,8 +109,11 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
 router.post("/leave/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
   const numericGameId = Number(gameId);
+
   // @ts-ignore
   const user_id = request.session.user_id;
+  // @ts-ignore
+  const username = request.session.username;
 
   let isHost = false;
   if (user_id) {
@@ -136,11 +139,11 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
   }
 
   const io = request.app.get("io");
-  const updatedPlayers = await Game.getPlayersInGame(numericGameId);
-  const updatedGameInfo = await Game.getGameInfo(numericGameId);
-  io.to(numericGameId).emit("game:update", {
-    players: updatedPlayers,
-    gameInfo: updatedGameInfo,
+
+  io.to(gameId).emit(`chat:message:${gameId}`, {
+    sender: { username: "Server" },
+    message: `${username} has left the game.`,
+    timestamp: Date.now(),
   });
 
   // For sendBeacon, don't redirect

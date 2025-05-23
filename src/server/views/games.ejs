@@ -36,14 +36,18 @@
 
         <div>
           <h2>Your Cards:</h2>
-          <ul id="my-cards">
-            <% userCards.forEach(function(card) { %>
-              <li>Card #<%= card.card_rank %>
-              </li>
-              <% }); %>
-          </ul>
+          <% function cardName(cardNum) { const ranks=["A", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J"
+            , "Q" , "K" ]; const suits=["s", "c" , "h" , "d" ]; // Spades, Clubs, Hearts, Diamonds const
+            zeroBased=cardNum - 1; const rank=ranks[zeroBased % 13]; const suit=suits[Math.floor(zeroBased / 13)];
+            return rank + suit; } %>
+            <ul id="my-cards">
+              <% userCards.forEach(function(card) { %>
+                <li><%= cardName(card.card_rank) %>
+                </li>
+                <% }); %>
+            </ul>
         </div>
-      </div>
+  </div>
 </body>
 
 
@@ -58,7 +62,7 @@
 <script>
   const roomId = "<%= gameId %>";
   const socket = io();
-    socket.emit("joinRoom", roomId);
+  socket.emit("joinRoom", roomId);
 
   // Listen for new messages
   socket.on(`chat:message:${roomId}`, function (data) {
