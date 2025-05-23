@@ -239,6 +239,23 @@ router.post("/:gameId/play", async (req, res) => {
   // Move cards to pile
   await Game.moveCardsToPile(cards.map(Number), Number(gameId));
 
+  // --- Rotate turn to next player ---
+  const players = await Game.getPlayersInGame(Number(gameId)); // Should be ordered by join time/seat
+  // @ts-ignore
+  const user_id = req.session.user_id;
+  const currentIndex = players.findIndex((p) => p.user_id === user_id);
+  const nextIndex = (currentIndex + 1) % players.length;
+  const nextPlayer = players[nextIndex];
+
+  // Update turn in DB
+  await Game.setCurrentPlayerTurn(Number(gameId), nextPlayer.user_id);
+
+  // Notify clients whose turn it is
+  io.to(gameId).emit(`chat:message:${gameId}`, {
+    sender: { username: "Server" },
+    message: `It's ${nextPlayer.username}'s turn!`,
+    timestamp: Date.now(),
+  });
   res.sendStatus(200);
 });
 
