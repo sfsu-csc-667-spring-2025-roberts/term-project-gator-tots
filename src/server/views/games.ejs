@@ -36,16 +36,28 @@
 
         <div>
           <h2>Your Cards:</h2>
-          <% function cardName(cardNum) { const ranks=["A", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J"
-            , "Q" , "K" ]; const suits=["s", "c" , "h" , "d" ]; // Spades, Clubs, Hearts, Diamonds const
-            zeroBased=cardNum - 1; const rank=ranks[zeroBased % 13]; const suit=suits[Math.floor(zeroBased / 13)];
-            return rank + suit; } %>
-            <ul id="my-cards">
-              <% userCards.forEach(function(card) { %>
-                <li><%= cardName(card.card_rank) %>
-                </li>
-                <% }); %>
-            </ul>
+          <%
+  // Sort by rank first, then suit
+  function rankOrder(cardNum) { return Math.floor((cardNum - 1) % 13); }
+  function suitOrder(cardNum) { return Math.floor((cardNum - 1) / 13); }
+  const sortedCards = userCards.slice().sort((a, b) => {
+    const rankDiff = rankOrder(a.card_rank) - rankOrder(b.card_rank);
+    return rankDiff !== 0 ? rankDiff : suitOrder(a.card_rank) - suitOrder(b.card_rank);
+  });
+  function cardName(cardNum) {
+    const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    const suits = ["s", "c", "h", "d"];
+    const zeroBased = cardNum - 1;
+    const rank = ranks[zeroBased % 13];
+    const suit = suits[Math.floor(zeroBased / 13)];
+    return rank + suit;
+  }
+%>
+<ul id="my-cards">
+  <% sortedCards.forEach(function(card) { %>
+    <li><%= cardName(card.card_rank) %></li>
+  <% }); %>
+</ul>
         </div>
   </div>
 </body>
