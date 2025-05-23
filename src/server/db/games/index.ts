@@ -109,6 +109,8 @@ export const deleteGame = async (gameId: number) => {
     "UPDATE users SET game_room_id = NULL WHERE game_room_id = $1",
     [gameId],
   );
+  // Delete all cards associated with this game's deck
+  await db.none(`DELETE FROM card WHERE deck_deck_id = $1`, [gameId]);
   // Delete the game room
   await db.none("DELETE FROM game_room WHERE game_room_id = $1", [gameId]);
 };

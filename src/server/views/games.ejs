@@ -36,7 +36,7 @@
           </button>
           <% } %>
             <button id="bs-btn"
-              style="background-color: <%= username !== currentPlayer && !isHost ? '#e74c3c' : '#ccc' %>; color: white;"
+              style="background-color: <%= username !== currentPlayer ? '#e74c3c' : '#ccc' %>; color: white;"
               <% if (username===currentPlayer) { %>disabled<% } %>
                 >
                 Bullshit!
@@ -77,9 +77,10 @@
                   <div style="color: #888; font-size: 0.9em;">It's <%= currentPlayer %>'s turn.</div>
                   <% } %>
                     <h3 id="supposed-card">
-                      Supposed Card: <%= supposedRank %>
-                    </h3>
-                    <!-- supposedRank: <%= supposedRank %> -->
+  Supposed Card:
+  <%= ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][Math.floor((supposedRank - 1) / 4)] %>
+</h3>
+
             </div>
   </div>
 </body>
