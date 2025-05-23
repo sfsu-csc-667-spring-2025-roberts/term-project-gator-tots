@@ -226,13 +226,13 @@ router.post("/:gameId/play", async (req, res) => {
 
   // Get current supposed rank
   const gameInfo = await Game.getGameInfo(Number(gameId));
-  let supposedRank = gameInfo.current_supposed_rank || 1;
+  let supposedRank = gameInfo.current_supposed_rank;
 
   // ...validate and process the play...
 
   // Advance supposed rank (1-13)
-  let nextSupposedRank = supposedRank + 1;
-  if (nextSupposedRank > 13) nextSupposedRank = 1;
+  let nextSupposedRank = supposedRank + 4;
+  if (nextSupposedRank > 52) nextSupposedRank = 1;
 
   // Move cards to pile
   await Game.moveCardsToPile(cards.map(Number), Number(gameId));
@@ -250,6 +250,7 @@ router.post("/:gameId/play", async (req, res) => {
   // Update in DB
   io.to(gameId).emit("game:supposedRank", { supposedRank: supposedRank });
   await Game.setSupposedRank(Number(gameId), nextSupposedRank);
+  console.log("Supposed rank updated to", nextSupposedRank, "for game", gameId);
 
   // Notify clients whose turn it is
   io.to(gameId).emit(`chat:message:${gameId}`, {

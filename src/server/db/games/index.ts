@@ -147,7 +147,7 @@ export const getFirstTurnPlayer = async (gameId: number) => {
 
 export const getGameInfo = async (gameId: number) => {
   return db.oneOrNone(
-    `SELECT min_players, max_players, game_room_name, game_room_password
+    `SELECT min_players, max_players, game_room_name, game_room_password, current_supposed_rank, current_players_turn
      FROM game_room
      WHERE game_room_id = $1`,
     [gameId],

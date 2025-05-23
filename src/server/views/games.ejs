@@ -27,7 +27,7 @@
               <% }); %>
           </ul>
         </div>
-        <button class="start-btn" <% if (players.length < min_players) { %>
+        <button class="start-btn" <% if ((players.length < min_players) && isHost) { %>
           disabled
           title="Need at least <%= min_players %> players to start"
             <% } %>>

@@ -33,7 +33,9 @@ socket.on("game:supposedRank", function (data) {
   ];
   const h3 = document.getElementById("supposed-card");
   if (h3) {
-    h3.innerHTML = "Supposed Card: " + ranks[data.supposedRank - 1];
+    // Map card_rank (1-52) to rank index (0-12)
+    const rankIndex = Math.floor((data.supposedRank - 1) / 4);
+    h3.innerHTML = "Supposed Card: " + ranks[rankIndex];
   }
 });
 
