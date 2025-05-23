@@ -13,8 +13,9 @@ INSERT INTO game_room (
   game_room_name,
   min_players,
   max_players,
-  game_room_password
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+  game_room_password,
+  current_supposed_rank
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1)
 RETURNING game_room_id`;
 
 export const ADD_PLAYER = `

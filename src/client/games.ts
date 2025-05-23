@@ -15,6 +15,28 @@ socket.on("game:update", (data) => {
   getPlayersInGame(data.players);
 });
 
+socket.on("game:supposedRank", function (data) {
+  const ranks = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+  ];
+  const h3 = document.getElementById("supposed-card");
+  if (h3) {
+    h3.innerHTML = "Supposed Card: " + ranks[data.supposedRank - 1];
+  }
+});
+
 function updateGameInfo(gameInfo: any) {
   // Update game info in the DOM as needed
   const minPlayers = document.getElementById("min-players");

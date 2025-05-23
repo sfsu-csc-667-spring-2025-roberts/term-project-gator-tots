@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { saveChatMessage } from "../db/chat"; // Adjust path as needed
 
 import { Game } from "../db";
-import { getAvailableGames, getGameInfo } from "../db/games";
+import { getAvailableGames, getGameInfo, setSupposedRank } from "../db/games";
 
 const router = express.Router();
 
@@ -178,6 +178,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   const gameInfo = await Game.getGameInfo(Number(gameId));
   const userCards = await Game.getUserCards(user_id, Number(gameId));
   const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
+  let current_supposed_rank = await Game.getSupposedRank(Number(gameId));
 
   if (!game || !game.game_room_name) {
     // Game not found, redirect to lobby or show an error
@@ -192,6 +193,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     gameInfo,
     userCards,
     currentPlayer,
+    current_supposed_rank,
   });
 
   // Emit a server message about whose turn it is
@@ -232,10 +234,6 @@ router.post("/:gameId/play", async (req, res) => {
   let nextSupposedRank = supposedRank + 1;
   if (nextSupposedRank > 13) nextSupposedRank = 1;
 
-  // Update in DB
-  io.to(gameId).emit("game:supposedRank", { supposedRank: supposedRank });
-  await Game.setSupposedRank(Number(gameId), nextSupposedRank);
-
   // Move cards to pile
   await Game.moveCardsToPile(cards.map(Number), Number(gameId));
 
@@ -249,6 +247,9 @@ router.post("/:gameId/play", async (req, res) => {
 
   // Update turn in DB
   await Game.setCurrentPlayerTurn(Number(gameId), nextPlayer.user_id);
+  // Update in DB
+  io.to(gameId).emit("game:supposedRank", { supposedRank: supposedRank });
+  await Game.setSupposedRank(Number(gameId), nextSupposedRank);
 
   // Notify clients whose turn it is
   io.to(gameId).emit(`chat:message:${gameId}`, {

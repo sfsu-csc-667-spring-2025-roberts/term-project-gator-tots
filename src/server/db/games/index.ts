@@ -217,6 +217,14 @@ export async function setSupposedRank(gameId: number, rank: number) {
   );
 }
 
+export async function getSupposedRank(gameId: number) {
+  return db.oneOrNone(
+    `
+    SELECT current_supposed_rank from game_room WHERE game_room_id = $1`,
+    [gameId],
+  );
+}
+
 // Deal the cards
 export const dealCards = async (gameId: number) => {
   // 1. Get all unassigned cards for this game
@@ -296,6 +304,7 @@ export default {
   getUserCards,
   getCurrentPlayer,
   setSupposedRank,
+  getSupposedRank,
   moveCardsToPile,
   setCurrentPlayerTurn,
 };
