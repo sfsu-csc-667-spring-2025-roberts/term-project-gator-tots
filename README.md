@@ -1,16 +1,16 @@
 Gator Tots BS ReadMe
 
-How to Migrate GatorTotsDB after Postgress install
+How to Migrate GatorTotsDb after Postgress install
 
 1. Log into Postgres with command:
    psql -U postgres
    - enter password when prompted
 2. Drop old database if it exists with the following line (entered in psql terminal):
-   DROP DATABASE IF EXISTS "GatorTotsDB";
+   DROP DATABASE IF EXISTS "GatorTotsDb";
    - It won't let you drop the database if you are currently connected to it, to connect to a
      different one, run the command: \c postgres
-3. Create GatorTotsDB database with the following line:
-   CREATE DATABASE "GatorTotsDB";
+3. Create GatorTotsDb database with the following line:
+   CREATE DATABASE "GatorTotsDb";
 4. Enter the following pg-migration script in commandline:
    npm run db:migrate
 5. Done
@@ -19,23 +19,25 @@ TO-DO:
 
 ~~- Implement game creation feature~~
 
- ~~- create field where game instances show in lobby with host and join buttons~~
-  ~~- Show game instance with 'Game Name' and players (x/y) where x is current number of~~
-    ~~players and y is the max.~~
-    - password protected games would be denoted with a _, e.g. Game Lobby 1_ (3/8)
-  ~~- create game-creation form~~
-    ~~- Game Name: String~~
-    ~~- Password (optional): String~~
-    ~~- Min players (minimum 3): integer~~
-    ~~- Max Players (maximum 8): integer~~
-    ~~- Submit button 'Create Game'~~
-  ~~- make sure data is added to db upon creation~~
-  ~~- route game join and password prompt if game is protected~~
-  - add 'start game' feature which initializes start of game
-    - alternative: only have num_players field and game starts automatically when desired number of
-      players is reached.
+~~- create field where game instances show in lobby with host and join buttons~~
+~~- Show game instance with 'Game Name' and players (x/y) where x is current number of~~
+~~players and y is the max.~~ - password protected games would be denoted with a _, e.g. Game Lobby 1_ (3/8)
+~~- create game-creation form~~
+~~- Game Name: String~~
+~~- Password (optional): String~~
+~~- Min players (minimum 3): integer~~
+~~- Max Players (maximum 8): integer~~
+~~- Submit button 'Create Game'~~
+~~- make sure data is added to db upon creation~~
+~~- route game join and password prompt if game is protected~~
+
+- add 'start game' feature which initializes start of game
+
+  - alternative: only have num_players field and game starts automatically when desired number of
+    players is reached.
 
 - Implement game-flow and game-logic
+
   - seat players in order of join
   - once minimum number of players joined, host can 'start game' (see alternative)
   - all cards of one deck are distributed among players in clockwise order (ascending order after the host), starting with host
