@@ -13,6 +13,7 @@ const config: webpack.Configuration = {
     main: path.join(process.cwd(), "src", "client", "utils", "index.ts"), // Main entry point
     lobby: path.join(process.cwd(), "src", "client", "lobby.ts"), // Lobby entry point
     chat: path.join(process.cwd(), "src", "client", "chat.ts"), // Chat entry point
+    game: path.join(process.cwd(), "src", "client", "games.ts"), // Game entry point
   },
   output: {
     path: path.join(process.cwd(), "public", "js"),
