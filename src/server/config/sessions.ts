@@ -10,7 +10,7 @@ const configureSession = (app: Express) => {
     createTableIfMissing: true,
   });
 
-  const sessionMiddleware = session({
+  sessionMiddleware = session({
     store,
     secret: process.env.SESSION_SECRET!,
     resave: true,
