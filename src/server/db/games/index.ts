@@ -147,6 +147,17 @@ export const getFirstTurnPlayer = async (gameId: number) => {
   );
 };
 
+export const setLastPlayed = async (
+  gameId: number,
+  userId: number,
+  cards: number[],
+) => {
+  return db.none(
+    `UPDATE game_room SET last_played_user_id = $1, last_played_cards = $2 WHERE game_room_id = $3`,
+    [userId, cards, gameId],
+  );
+};
+
 export const getGameInfo = async (gameId: number) => {
   return db.oneOrNone(
     `SELECT min_players, max_players, game_room_name, game_room_password, current_supposed_rank, current_players_turn, game_room_host_user_id
@@ -309,4 +320,5 @@ export default {
   getSupposedRank,
   moveCardsToPile,
   setCurrentPlayerTurn,
+  setLastPlayed,
 };

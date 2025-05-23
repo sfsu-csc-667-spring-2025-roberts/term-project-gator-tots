@@ -241,6 +241,12 @@ router.post("/:gameId/play", async (req, res) => {
 
   // Move cards to pile
   await Game.moveCardsToPile(cards.map(Number), Number(gameId));
+  // Update last played user and cards
+  await Game.setLastPlayed(
+    Number(gameId),
+    gameInfo.current_players_turn,
+    cards.map(Number),
+  );
 
   // --- Rotate turn to next player ---
   const players = await Game.getPlayersInGame(Number(gameId)); // Should be ordered by join time/seat
