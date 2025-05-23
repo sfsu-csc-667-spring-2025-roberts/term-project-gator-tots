@@ -122,7 +122,10 @@ export const getPlayerCount = async (gameId: number) => {
 };
 
 export const getPlayersInGame = async (gameId: number) => {
-  return db.any("SELECT username FROM users WHERE game_room_id = $1", [gameId]);
+  return db.any(
+    "SELECT user_id, username FROM users WHERE game_room_id = $1 ORDER BY user_id ASC",
+    [gameId],
+  );
 };
 
 export const getGameInfo = async (gameId: number) => {

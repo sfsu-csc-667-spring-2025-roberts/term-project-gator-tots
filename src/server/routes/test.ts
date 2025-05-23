@@ -54,4 +54,8 @@ router.get("/socket", (request: Request, response: Response) => {
   response.json({ message: "Socket event emitted" });
 });
 
+router.post("/test-actual-simple", (request: Request, response: Response) => {
+  response.json({ message: "Test simple route OK" });
+});
+
 export default router;
