@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+import { saveChatMessage } from "../db/chat"; // Adjust path as needed
 
 import { Game } from "../db";
 import { getAvailableGames, getGameInfo } from "../db/games";
@@ -89,15 +90,22 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   // 5. All checks passed, join the game
   try {
     const playerCount = await Game.join(user_id, Number(gameId), password);
+    const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
     // After successful join
     const io = request.app.get("io");
     // @ts-ignore
     const username = request.session.username;
+    const serverMsg = `${username} has joined the game.`;
+
     io.to(gameId).emit(`chat:message:${gameId}`, {
       sender: { username: "Server" },
-      message: `${username} has joined the game.`,
+      message: serverMsg,
       timestamp: Date.now(),
     });
+
+    // Save to DB
+    await saveChatMessage(Number(gameId), "Server", serverMsg);
+
     console.log({ playerCount });
     response.redirect(`/games/${gameId}`);
   } catch (error: any) {
@@ -140,11 +148,13 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
 
   const io = request.app.get("io");
 
+  const serverMsg = `${username} has left the game.`;
   io.to(gameId).emit(`chat:message:${gameId}`, {
     sender: { username: "Server" },
-    message: `${username} has left the game.`,
+    message: serverMsg,
     timestamp: Date.now(),
   });
+  await saveChatMessage(Number(gameId), "Server", serverMsg);
 
   // For sendBeacon, don't redirect
   if (request.headers.accept !== "application/json") {
