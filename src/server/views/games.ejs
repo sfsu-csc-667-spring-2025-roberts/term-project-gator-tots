@@ -5,80 +5,336 @@
   <title>Gator Tot's BS Game Lobby</title>
   <%- include('shared/head') %>
   <script src="/socket.io/socket.io.js"></script>
+  <style>
+    /* Basic styling to hide game area initially */
+    #gameArea {
+      display: none;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    #chat-window {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      width: 300px; /* Or your desired width */
+    }
+    #chat-messages {
+      list-style-type: none;
+      padding: 0;
+      margin: 0 0 10px 0;
+      height: 150px; /* Or your desired height */
+      overflow-y: scroll;
+      border: 1px solid #eee;
+    }
+  </style>
 </head>
 
 <body>
   <div id="container">
     <%- include('shared/menu') %>
-      <h1>
+    <h1>
+      Welcome, <%= username %>!
+    </h1>
 
-        Welcome, <%= username %>!
-      </h1>
+    <p>Game name: <%= game_name %></p>
 
-      Game name: <%= game_name %>
+    <div>
+      <h2 id="playerCountHeader">Current Players <span id="currentPlayerCount"><%= players.length %></span>/<%= max_players %>:</h2>
+      <ul id="playerListArea">
+        <% players.forEach(function(player) { %>
+        <li>
+          <%= player.username %>
+            <% if (player.user_id === game_room_host_user_id) { %> (Host) <% } %>
+        </li>
+        <% }); %>
+      </ul>
+    </div>
 
-        <div>
-          <h2>Current Players <%=players.length %>/<%= max_players %>:</h2>
-          <ul>
-            <% players.forEach(function(player) { %>
-              <li>
-                <%= player.username %>
-              </li>
-              <% }); %>
-          </ul>
-        </div>
-        <button class="start-btn" <% if (players.length < min_players) { %>
-          disabled
-          title="Need at least <%= min_players %> players to start"
-            <% } %>>
-              Start Game
-        </button>
+    <% if (user_id === game_room_host_user_id) { %>
+      <button id="startGameButton" class="start-btn" <% if (players.length < min_players) { %>
+        disabled
+        title="Need at least <%= min_players %> players to start"
+          <% } %>>
+          Start Game
+      </button>
+    <% } else if (game_room_host_user_id) { %>
+      <% const hostPlayer = players.find(p => p.user_id === game_room_host_user_id); %>
+      <p id="waitingForHostMessage">Waiting for the host (<%= hostPlayer ? hostPlayer.username : 'Unknown' %>) to start the game...</p>
+    <% } else { %>
+      <p id="waitingForHostInfoMessage">Waiting for host information...</p>
+    <% } %>
+
+    <div id="gameArea">
+        <h2>Game Started!</h2>
+        <p>My Hand: <pre id="myHandArea">Waiting for cards...</pre></p>
+        <p>Current Turn: <span id="currentPlayerTurnArea"></span></p>
+        <p>Players in Game:</p>
+        <ul id="gamePlayersList"></ul>
+        <p>--- More game UI will go here ---</p>
+    </div>
+
   </div>
 
+  <div id="chat-window">
+    <ul id="chat-messages"></ul>
+    <form id="chat-form">
+      <input type="text" id="chat-input" autocomplete="off" placeholder="Type a message..." />
+      <button type="submit">Send</button>
+    </form>
+  </div>
 
-  
-</body>
+  <input type="hidden" id="gameRoomIdInput" value="<%= gameId %>">
+  <input type="hidden" id="isUserHostInput" value="<%= user_id === game_room_host_user_id %>">
+  <input type="hidden" id="minPlayersInput" value="<%= min_players %>">
+  <input type="hidden" id="gameRoomHostUserIdInput" value="<%= typeof game_room_host_user_id !== 'undefined' ? game_room_host_user_id : '' %>">
+  <input type="hidden" id="currentUserIdInput" value="<%= user_id %>">
+  <input type="hidden" id="maxPlayersInput" value="<%= max_players %>">
 
-<div id="chat-window">
-  <ul id="chat-messages"></ul>
-  <form id="chat-form">
-    <input type="text" id="chat-input" autocomplete="off" placeholder="Type a message..." />
-    <button type="submit">Send</button>
-  </form>
-</div>
+
 <script>
-  const roomId = "<%= gameId %>";
+  // --- Initial Setup from EJS variables ---
+  const gameId = document.getElementById("gameRoomIdInput").value;
+  const isHost = document.getElementById("isUserHostInput").value === 'true';
+  const minPlayers = parseInt(document.getElementById("minPlayersInput").value, 10);
+  const gameRoomHostUserId = parseInt(document.getElementById("gameRoomHostUserIdInput").value, 10); // Get host ID
+  const currentUserId = parseInt(document.getElementById("currentUserIdInput").value, 10); // Get current user's ID
+  const maxPlayers = parseInt(document.getElementById("maxPlayersInput").value, 10);
+
+
   const socket = io();
 
-  // Listen for new messages
-  socket.on(`chat:message:${roomId}`, function(data) {
-    const li = document.createElement("li");
-    li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
-    document.getElementById("chat-messages").appendChild(li);
+  // --- DOM Element References (defined once) ---
+  const playerListUl = document.getElementById('playerListArea');
+  const currentPlayerCountSpan = document.getElementById('currentPlayerCount');
+  const playerCountHeader = document.getElementById('playerCountHeader');
+  const startGameButton = document.getElementById('startGameButton');
+  const gameAreaDiv = document.getElementById('gameArea');
+  const myHandArea = document.getElementById('myHandArea');
+  const currentPlayerTurnArea = document.getElementById('currentPlayerTurnArea');
+  const gamePlayersListUl = document.getElementById('gamePlayersList'); // Corrected ID for game player list
+  const chatMessagesUl = document.getElementById("chat-messages");
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
+  const waitingForHostMessageP = document.getElementById("waitingForHostMessage");
+  const waitingForHostInfoMessageP = document.getElementById("waitingForHostInfoMessage");
+
+
+  // --- Chat Logic ---
+  if (chatMessagesUl) { // Check if element exists
+    socket.on(`chat:message:${gameId}`, function(data) {
+      const li = document.createElement("li");
+      li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
+      chatMessagesUl.appendChild(li);
+      chatMessagesUl.scrollTop = chatMessagesUl.scrollHeight; // Scroll to bottom
+    });
+  }
+
+  if (chatForm) {
+    chatForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      if (chatInput && chatInput.value) {
+        fetch(`/chat/${gameId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: chatInput.value }),
+        });
+        chatInput.value = "";
+      }
+    });
+  }
+
+  if (chatMessagesUl) { // Check if element exists
+    fetch(`/chat/${gameId}/messages`)
+      .then(res => res.json())
+      .then(messages => {
+        messages.forEach(msg => {
+          const li = document.createElement("li");
+          li.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.username}: ${msg.message_content}`;
+          chatMessagesUl.appendChild(li);
+        });
+        chatMessagesUl.scrollTop = chatMessagesUl.scrollHeight; // Scroll to bottom
+      })
+      .catch(err => console.error("Error fetching chat messages:", err));
+  }
+  // --- END OF Chat Logic ---
+
+
+  // --- Lobby Update Logic ---
+  socket.on('lobby:updated', function(data) {
+    console.log('[CLIENT RECEIVED lobby:updated] Raw Data:', data);
+
+    if (data && data.gameId == parseInt(gameId, 10)) {
+      console.log('[CLIENT] lobby:updated - Game ID matches. Processing DOM update. Players received:', data.players);
+
+      if (playerListUl && data.players) {
+        playerListUl.innerHTML = '';
+        data.players.forEach(function(player) {
+          const li = document.createElement('li');
+          li.textContent = player.username;
+          if (player.user_id === gameRoomHostUserId) {
+              li.textContent += ' (Host)';
+          }
+          playerListUl.appendChild(li);
+        });
+        console.log('[CLIENT] lobby:updated - Player list UL updated.');
+      } else {
+        console.warn('[CLIENT] lobby:updated - playerListUl or data.players missing for list update.');
+      }
+
+      if (currentPlayerCountSpan && data.players) {
+        currentPlayerCountSpan.textContent = data.players.length;
+        console.log('[CLIENT] lobby:updated - Player count span updated.');
+      } else {
+        console.warn('[CLIENT] lobby:updated - currentPlayerCountSpan or data.players missing for count update.');
+      }
+      // Update the full H2 text e.g. "Current Players X/Y"
+      if (playerCountHeader && data.players && !isNaN(maxPlayers)) {
+          playerCountHeader.textContent = `Current Players ${data.players.length}/${maxPlayers}:`;
+      }
+
+
+      if (startGameButton && isHost) {
+        if (data.players && data.players.length >= minPlayers) {
+          startGameButton.disabled = false;
+          startGameButton.title = "Start Game";
+          console.log('[CLIENT] lobby:updated - Start Game button enabled.');
+        } else {
+          startGameButton.disabled = true;
+          startGameButton.title = `Need at least ${minPlayers} players to start`;
+          console.log('[CLIENT] lobby:updated - Start Game button disabled.');
+        }
+      }
+    } else {
+      console.log(`[CLIENT] lobby:updated - Received event for different gameId (my gameId: ${gameId}, event gameId: ${data ? data.gameId : 'N/A'}) or data is missing.`);
+    }
+  });
+  // --- END OF Lobby Update Logic ---
+
+
+  // --- Start Game Button Logic ---
+  if (startGameButton && isHost) {
+    startGameButton.addEventListener('click', async () => {
+      console.log(`Host clicked Start Game for game ID: ${gameId}`);
+      startGameButton.disabled = true;
+      startGameButton.textContent = "Starting...";
+
+      try {
+        const response = await fetch(`/games/${gameId}/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        const result = await response.json(); // Always try to parse JSON
+        if (response.ok) {
+          console.log('Game start request successful:', result);
+          // UI transition will be primarily handled by 'game:started' event
+        } else {
+          console.error('Game start request failed:', result);
+          alert(`Error starting game: ${result.message || 'Server error with no message.'}`);
+          startGameButton.disabled = false; // Re-enable on failure
+          startGameButton.textContent = "Start Game";
+        }
+      } catch (error) {
+        console.error('Error sending start game request:', error);
+        alert('Failed to send start game request. Check browser console.');
+        startGameButton.disabled = false; // Re-enable on failure
+        startGameButton.textContent = "Start Game";
+      }
+    });
+  }
+  // --- END OF Start Game Button Logic ---
+
+
+  // --- Socket Listeners for Game Start and State Updates ---
+  socket.on('game:started', (data) => {
+    console.log('[CLIENT RECEIVED game:started] Raw Data:', data);
+
+    // Ensure this event is for the current game
+    if (data && data.gameId == parseInt(gameId, 10)) {
+        console.log('[CLIENT] game:started - Game ID matches. Transitioning UI.');
+        // Hide lobby elements
+        if (startGameButton) startGameButton.style.display = 'none';
+        if (playerCountHeader) playerCountHeader.style.display = 'none';
+        if (playerListUl) playerListUl.style.display = 'none';
+        if (waitingForHostMessageP) waitingForHostMessageP.style.display = 'none';
+        if (waitingForHostInfoMessageP) waitingForHostInfoMessageP.style.display = 'none';
+
+        // Show game area
+        if (gameAreaDiv) gameAreaDiv.style.display = 'block';
+
+        if (myHandArea && data.yourHand) {
+            myHandArea.textContent = ''; // Clear previous
+            data.yourHand.forEach(card => {
+                // Simple display, you'll want to make this nicer
+                const cardDiv = document.createElement('div');
+                cardDiv.textContent = `Card ID: ${card.id} (Rank: ${card.rank}, Suit: ${card.suit})`;
+                myHandArea.appendChild(cardDiv);
+            });
+        }
+
+        let firstPlayerUsername = 'Unknown';
+        if (data.players && !isNaN(data.currentPlayerTurn)) { // Check if currentPlayerTurn is a number
+            const currentPlayer = data.players.find(p => p.userId === data.currentPlayerTurn);
+            if (currentPlayer) firstPlayerUsername = currentPlayer.username;
+        }
+        if (currentPlayerTurnArea) currentPlayerTurnArea.textContent = firstPlayerUsername;
+
+        if (gamePlayersListUl && data.players) {
+            gamePlayersListUl.innerHTML = '';
+            data.players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = `${player.username} (${player.cardCount} cards)`;
+                gamePlayersListUl.appendChild(li);
+            });
+        }
+
+        if (firstPlayerUsername !== 'Unknown') {
+            // Consider a less intrusive notification, e.g., updating a status message div
+            console.log(`Game has started! It's ${firstPlayerUsername}'s turn.`);
+        } else {
+            console.log(`Game has started!`);
+        }
+    } else {
+        console.log(`[CLIENT] game:started - Received event for different gameId (my gameId: ${gameId}, event gameId: ${data ? data.gameId : 'N/A'}) or data is missing.`);
+    }
   });
 
-  // Send message
-  document.getElementById("chat-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const input = document.getElementById("chat-input");
-    fetch(`/chat/${roomId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input.value }),
-    });
-    input.value = "";
+  socket.on('game:stateUpdate', (data) => {
+    console.log('[CLIENT RECEIVED game:stateUpdate] Raw Data:', data);
+    if (data && data.gameId == parseInt(gameId, 10)) {
+        console.log('[CLIENT] game:stateUpdate - Game ID matches. Updating state.');
+        if (currentPlayerTurnArea && data.players && !isNaN(data.currentPlayerTurn)) {
+            const currentPlayer = data.players.find(p => p.userId === data.currentPlayerTurn);
+            if (currentPlayer) currentPlayerTurnArea.textContent = currentPlayer.username;
+        }
+        if (gamePlayersListUl && data.players) {
+            gamePlayersListUl.innerHTML = '';
+            data.players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = `${player.username} (${player.cardCount} cards)`;
+                gamePlayersListUl.appendChild(li);
+            });
+        }
+    } else {
+        console.log(`[CLIENT] game:stateUpdate - Received event for different gameId (my gameId: ${gameId}, event gameId: ${data ? data.gameId : 'N/A'}) or data is missing.`);
+    }
   });
 
-  // Optionally, load previous messages
-  fetch(`/chat/${roomId}/messages`)
-    .then(res => res.json())
-    .then(messages => {
-      messages.forEach(msg => {
-        const li = document.createElement("li");
-        li.textContent = `[${new Date(msg.timestamp).toLocaleTimeString()}] ${msg.username}: ${msg.message_content}`;
-        document.getElementById("chat-messages").appendChild(li);
-      });
-    });
+  socket.on('game:error', (errorMessage) => {
+    console.error('[CLIENT RECEIVED game:error]:', errorMessage);
+    alert(`Game Error: ${errorMessage}`);
+  });
+  // --- END OF Socket Listeners ---
+
+  // Ensure client joins the Socket.IO room for game-specific broadcasts
+  // This is crucial for io.to(gameId.toString()).emit(...) on the server to reach this client.
+  // Your chat logic might already do this if roomId for chat is the same as gameId.
+  // Let's ensure it's explicitly done for game purposes too if not already.
+  console.log(`[CLIENT] Attempting to join Socket.IO room: ${gameId}`);
+  socket.emit("joinRoom", gameId); // Make sure server handles "joinRoom" and adds socket to this room name.
+
 </script>
 
 </html>

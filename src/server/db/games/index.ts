@@ -68,7 +68,7 @@ export const join = async (
 
 export const getGameNameById = async (gameId: number) => {
   return db.oneOrNone(
-    "SELECT game_room_name FROM game_room WHERE game_room_id = $1",
+    "SELECT game_room_name, game_room_host_user_id FROM game_room WHERE game_room_id = $1", // Modified SQL
     [gameId],
   );
 };

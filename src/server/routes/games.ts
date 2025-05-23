@@ -120,12 +120,51 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   }
 
   // 5. All checks passed, join the game
+  // @ts-ignore
+  const joining_user_id = request.session.user_id; // Get the ID of the user making the join request
+  // @ts-ignore
+  const joining_username = request.session.username; // Get the username of the user making the join request
+
   try {
-    const playerCount = await Game.join(user_id, Number(gameId), password);
-    console.log({ playerCount });
+    // Pass the correct user_id to Game.join
+    const playerCount = await Game.join(
+      joining_user_id,
+      Number(gameId),
+      password,
+    );
+
+    console.log(
+      `[JOIN_SUCCESS] User ${joining_username} (ID: ${joining_user_id}) joined game ${gameId}. Player count now: ${playerCount}`,
+    );
+
+    const updatedPlayersList = await Game.getPlayersInGame(Number(gameId));
+    const io = getIo(request);
+
+    if (io && updatedPlayersList) {
+      const eventData = {
+        players: updatedPlayersList,
+        gameId: Number(gameId),
+        // Optional: Add username of who just joined for a more descriptive message
+        joinedPlayerUsername: joining_username,
+      };
+      const targetRoom = gameId.toString();
+      io.to(targetRoom).emit("lobby:updated", eventData);
+      console.log(
+        `[EMIT lobby:updated] To room: '${targetRoom}'. Data:`,
+        JSON.stringify(eventData),
+      );
+    } else {
+      console.error(
+        `[EMIT_FAIL lobby:updated] Missing io instance or updatedPlayersList for game ${gameId}.`,
+      );
+    }
+
     response.redirect(`/games/${gameId}`);
   } catch (error: any) {
-    console.log("game join error", { error });
+    console.error(
+      `[ERROR /join/:gameId] For game ${gameId} by user ${joining_username} (ID: ${joining_user_id}):`,
+      error,
+    );
     response.redirect("/lobby?warning=Could%20not%20join%20game");
   }
 });
@@ -169,32 +208,31 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
 
 router.get("/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
-
   // @ts-ignore
   const username = request.session.username;
   // @ts-ignore
-  const user_id = request.session.user_id;
+  const user_id = request.session.user_id; // Logged-in user's ID
 
-  const game = await Game.getGameNameById(Number(gameId));
+  const gameData = await Game.getGameNameById(Number(gameId)); // gameData will now have .game_room_name and .game_room_host_user_id
   const players = await Game.getPlayersInGame(Number(gameId));
-  const gameInfo = await Game.getGameInfo(Number(gameId));
+  const gameSettings = await Game.getGameInfo(Number(gameId)); // Contains min_players, max_players
 
-  if (!game || !game.game_room_name) {
-    // Game not found, redirect to lobby or show an error
+  if (!gameData || !gameData.game_room_name) {
     return response.redirect("/lobby");
   }
 
-  const { game_room_name, game_room_host_user_id } = game;
-  const isHost = user_id === game_room_host_user_id;
+  const isHost = user_id === gameData.game_room_host_user_id; // Calculate isHost here
 
   response.render("games", {
     gameId,
     username,
-    game_name: game_room_name,
-    isHost,
+    user_id, // Pass the current logged-in user's ID
+    game_name: gameData.game_room_name,
+    game_room_host_user_id: gameData.game_room_host_user_id, // *** ADD THIS LINE ***
+    isHost, // You can pass the calculated isHost too
     players,
-    min_players: gameInfo.min_players,
-    max_players: gameInfo.max_players,
+    min_players: gameSettings.min_players,
+    max_players: gameSettings.max_players,
   });
 });
 
@@ -254,11 +292,9 @@ router.post(
         !playersFromDb ||
         playersFromDb.length < (gameRoomInfo.min_players || 2)
       ) {
-        res
-          .status(400)
-          .json({
-            message: `Not enough players. Minimum ${gameRoomInfo.min_players || 2} required.`,
-          });
+        res.status(400).json({
+          message: `Not enough players. Minimum ${gameRoomInfo.min_players || 2} required.`,
+        });
         return;
       }
 
@@ -394,13 +430,11 @@ router.post(
       });
 
       // 5i. Final Success Response
-      res
-        .status(200)
-        .json({
-          message: "Game started successfully.",
-          gameId,
-          firstPlayerUserId,
-        });
+      res.status(200).json({
+        message: "Game started successfully.",
+        gameId,
+        firstPlayerUserId,
+      });
       return;
     } catch (error) {
       console.error(
