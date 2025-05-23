@@ -89,6 +89,13 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   // 5. All checks passed, join the game
   try {
     const playerCount = await Game.join(user_id, Number(gameId), password);
+    // After successful join
+    const io = request.app.get("io");
+    const updatedGameInfo = await Game.getGameInfo(Number(gameId));
+    io.to(gameId).emit("game:update", {
+      players: playerCount,
+      gameInfo: updatedGameInfo,
+    });
     console.log({ playerCount });
     response.redirect(`/games/${gameId}`);
   } catch (error: any) {
@@ -126,6 +133,14 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
     }
   }
 
+  const io = request.app.get("io");
+  const updatedPlayers = await Game.getPlayersInGame(numericGameId);
+  const updatedGameInfo = await Game.getGameInfo(numericGameId);
+  io.to(numericGameId).emit("game:update", {
+    players: updatedPlayers,
+    gameInfo: updatedGameInfo,
+  });
+
   // For sendBeacon, don't redirect
   if (request.headers.accept !== "application/json") {
     response.redirect("/lobby");
@@ -135,6 +150,7 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
 });
 
 router.get("/:gameId", async (request: Request, response: Response) => {
+  const io = request.app.get("io");
   const { gameId } = request.params;
 
   // @ts-ignore
@@ -154,6 +170,11 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   const { game_room_name, game_room_host_user_id } = game;
   const isHost = user_id === game_room_host_user_id;
 
+  io.to(gameId).emit("game:update", {
+    players,
+    gameInfo,
+  });
+
   response.render("games", {
     gameId,
     username,
@@ -163,6 +184,18 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     min_players: gameInfo.min_players,
     max_players: gameInfo.max_players,
   });
+});
+
+router.get("/:gameId/start-test", async (req, res) => {
+  const { gameId } = req.params;
+  try {
+    await Game.start(Number(gameId));
+    res.json({ success: true, message: "Game started and cards dealt!" });
+  } catch (error) {
+    console.error(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    res.status(500).json({ success: false, error: errorMessage });
+  }
 });
 
 export default router;

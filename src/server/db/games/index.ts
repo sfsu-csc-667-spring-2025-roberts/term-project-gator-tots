@@ -1,10 +1,12 @@
 import db from "../connection";
 import {
   ADD_PLAYER,
+  AVAILABLE_CARD_COUNT,
   CONDITIONALLY_JOIN_SQL,
   CREATE_DECK_SQL,
   CREATE_GAME_CARD_PILE_WITH_ID_SQL,
   CREATE_GAME_ROOM_SQL,
+  GAME_START_SQL,
 } from "./sql";
 
 export const create = async (
@@ -125,6 +127,13 @@ export const getPlayersInGame = async (gameId: number) => {
   return db.any("SELECT username FROM users WHERE game_room_id = $1", [gameId]);
 };
 
+export const getFirstTurnPlayer = async (gameId: number) => {
+  return db.one(
+    "SELECT user_user_id FROM card c JOIN users u ON u.user_id = c.user_user_id WHERE u.game_room_id = $1 AND c.card_rank = 1",
+    [gameId],
+  );
+};
+
 export const getGameInfo = async (gameId: number) => {
   return db.oneOrNone(
     `SELECT min_players, max_players, game_room_name, game_room_password
@@ -141,6 +150,65 @@ export const getUserById = async (userId: number) => {
   ]);
 };
 
+export const setFirstPlayer = async (gameId: number, userId: number) => {
+  await db.none(
+    `UPDATE game_room SET current_players_turn = $(userId) WHERE game_room_id = $(gameId)`,
+    { gameId, userId },
+  );
+};
+
+export const start = async (gameId: number) => {
+  await db.none(GAME_START_SQL, { gameId });
+
+  const players = await getPlayersInGame(gameId);
+
+  for (let i = 0; i < players.length; i++) {
+    await dealCards(gameId);
+  }
+
+  const firstTurnPlayer = await getFirstTurnPlayer(gameId);
+  await setFirstPlayer(gameId, firstTurnPlayer.user_user_id);
+};
+
+// filepath: c:\Users\johnb\Documents\CSC 667\term-project-gator-tots\src\server\db\games\index.ts
+export const dealCards = async (gameId: number) => {
+  // 1. Get all unassigned cards for this game
+  const available_cards = await db.any(
+    `SELECT card_rank FROM card WHERE deck_deck_id = $1 AND user_user_id = 0 AND game_card_pile_game_card_pile_id = 0`,
+    [gameId],
+  );
+
+  // 2. Shuffle the cards
+  function shuffle<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  const shuffledCards = shuffle(available_cards.map((c) => c.card_rank));
+
+  // 3. Get all players in the game
+  const players = await db.any(
+    `SELECT user_id FROM users WHERE game_room_id = $1`,
+    [gameId],
+  );
+
+  // 4. Deal cards round-robin
+  const queries = [];
+  for (let i = 0; i < shuffledCards.length; i++) {
+    const user_id = players[i % players.length].user_id;
+    const card_id = shuffledCards[i];
+    queries.push(
+      db.none(`UPDATE card SET user_user_id = $1 WHERE card_rank = $2`, [
+        user_id,
+        card_id,
+      ]),
+    );
+  }
+  await Promise.all(queries);
+};
+
 export default {
   create,
   join,
@@ -152,4 +220,7 @@ export default {
   getPlayersInGame,
   getGameInfo,
   getUserById,
+  start,
+  dealCards,
+  setFirstPlayer,
 };
