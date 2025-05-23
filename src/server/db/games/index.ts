@@ -158,6 +158,16 @@ export const setFirstPlayer = async (gameId: number, userId: number) => {
 };
 
 export const start = async (gameId: number) => {
+  // Prevent double dealing
+  const { count } = await db.one(
+    `SELECT COUNT(*)::int AS count FROM card WHERE deck_deck_id = $1`,
+    [gameId],
+  );
+  if (count >= 52) {
+    // Cards already dealt, skip dealing
+    return;
+  }
+
   await db.none(GAME_START_SQL, { gameId });
 
   const players = await getPlayersInGame(gameId);
