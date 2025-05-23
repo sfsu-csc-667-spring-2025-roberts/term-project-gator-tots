@@ -185,8 +185,8 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     return response.redirect("/lobby");
   }
 
-  const { game_room_name, game_room_host_user_id } = game;
-  const isHost = user_id === game_room_host_user_id;
+  const { game_room_name } = game;
+  const isHost = user_id === gameInfo.game_room_host_user_id;
 
   io.to(gameId).emit("game:update", {
     players,

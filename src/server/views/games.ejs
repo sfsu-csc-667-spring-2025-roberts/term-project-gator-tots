@@ -27,57 +27,60 @@
               <% }); %>
           </ul>
         </div>
-        <button class="start-btn" <% if ((players.length < min_players) && isHost) { %>
-          disabled
-          title="Need at least <%= min_players %> players to start"
-            <% } %>>
-              Start Game
-        </button>
-        <button id="bs-btn"
-          style="background-color: <%= username !== currentPlayer && !isHost ? '#e74c3c' : '#ccc' %>; color: white;" <%
-          if (username===currentPlayer || isHost) { %>disabled<% } %>
-            >
-            Bullshit!
-        </button>
-
-        <div>
-          <h2>Your Cards:</h2>
-          <% function rankOrder(cardNum) { return Math.floor((cardNum - 1) % 13); } function suitOrder(cardNum) { return
-            Math.floor((cardNum - 1) / 13); } const sortedCards=userCards.slice().sort((a, b)=> {
-            const rankDiff = rankOrder(a.card_rank) - rankOrder(b.card_rank);
-            return rankDiff !== 0 ? rankDiff : suitOrder(a.card_rank) - suitOrder(b.card_rank);
-            });
-            function cardName(cardNum) {
-            const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-            const suits = ["s", "c", "h", "d"];
-            const zeroBased = cardNum - 1;
-            const rank = ranks[zeroBased % 13];
-            const suit = suits[Math.floor(zeroBased / 13)];
-            return rank + suit;
-            }
-            %>
-            <ul id="my-cards">
-              <% sortedCards.forEach(function(card) { %>
-                <li>
-                  <label>
-                    <input type="checkbox" name="selectedCards" value="<%= card.card_rank %>" class="card-checkbox" />
-                    <%= cardName(card.card_rank) %>
-                  </label>
-                </li>
-                <% }); %>
-            </ul>
-            <button id="play-cards-btn" <% if (username !==currentPlayer) { %>disabled<% } %>
+        <% if (isHost) { %>
+          <button id="start-btn" class="start-btn" <% if (players.length < min_players) { %>
+            disabled
+            title="Need at least <%= min_players %> players to start"
+              <% } %>>
+                Start Game
+          </button>
+          <% } %>
+            <button id="bs-btn"
+              style="background-color: <%= username !== currentPlayer && !isHost ? '#e74c3c' : '#ccc' %>; color: white;"
+              <% if (username===currentPlayer || isHost) { %>disabled<% } %>
                 >
-                Play Selected Cards
+                Bullshit!
             </button>
-            <% if (username !==currentPlayer) { %>
-              <div style="color: #888; font-size: 0.9em;">It's <%= currentPlayer %>'s turn.</div>
-              <% } %>
-                <h3 id="supposed-card">
-                  Supposed Card: <%= supposedRank %>
-                </h3>
-                <!-- supposedRank: <%= supposedRank %> -->
-        </div>
+
+            <div>
+              <h2>Your Cards:</h2>
+              <% function rankOrder(cardNum) { return Math.floor((cardNum - 1) % 13); } function suitOrder(cardNum) {
+                return Math.floor((cardNum - 1) / 13); } const sortedCards=userCards.slice().sort((a, b)=> {
+                const rankDiff = rankOrder(a.card_rank) - rankOrder(b.card_rank);
+                return rankDiff !== 0 ? rankDiff : suitOrder(a.card_rank) - suitOrder(b.card_rank);
+                });
+                function cardName(cardNum) {
+                const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+                const suits = ["s", "c", "h", "d"];
+                const zeroBased = cardNum - 1;
+                const rank = ranks[zeroBased % 13];
+                const suit = suits[Math.floor(zeroBased / 13)];
+                return rank + suit;
+                }
+                %>
+                <ul id="my-cards">
+                  <% sortedCards.forEach(function(card) { %>
+                    <li>
+                      <label>
+                        <input type="checkbox" name="selectedCards" value="<%= card.card_rank %>"
+                          class="card-checkbox" />
+                        <%= cardName(card.card_rank) %>
+                      </label>
+                    </li>
+                    <% }); %>
+                </ul>
+                <button id="play-cards-btn" <% if (username !==currentPlayer) { %>disabled<% } %>
+                    >
+                    Play Selected Cards
+                </button>
+                <% if (username !==currentPlayer) { %>
+                  <div style="color: #888; font-size: 0.9em;">It's <%= currentPlayer %>'s turn.</div>
+                  <% } %>
+                    <h3 id="supposed-card">
+                      Supposed Card: <%= supposedRank %>
+                    </h3>
+                    <!-- supposedRank: <%= supposedRank %> -->
+            </div>
   </div>
 </body>
 
@@ -175,6 +178,26 @@
         alert("You called Bullshit!");
       }
     });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const startBtn = document.getElementById("start-btn");
+    if (startBtn) {
+      startBtn.addEventListener("click", function () {
+        fetch(`/games/<%= gameId %>/start-test`, {
+          method: "GET"
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              alert("Game started!");
+            } else {
+              alert("Failed to start game: " + (data.error || "Unknown error"));
+            }
+          })
+          .catch(() => alert("Failed to start game."));
+      });
+    }
   });
 </script>
 
