@@ -220,7 +220,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
 router.post("/:gameId/play", async (req, res) => {
   const io = req.app.get("io");
   const { gameId } = req.params;
-  const { cards, pileId } = req.body;
+  const { cards } = req.body;
 
   // Get current supposed rank
   const gameInfo = await Game.getGameInfo(Number(gameId));
@@ -233,11 +233,11 @@ router.post("/:gameId/play", async (req, res) => {
   if (nextSupposedRank > 13) nextSupposedRank = 1;
 
   // Update in DB
+  io.to(gameId).emit("game:supposedRank", { supposedRank: supposedRank });
   await Game.setSupposedRank(Number(gameId), nextSupposedRank);
-  io.to(gameId).emit("game:supposedRank", { supposedRank: nextSupposedRank });
 
   // Move cards to pile
-  await Game.moveCardsToPile(cards.map(Number), Number(pileId));
+  await Game.moveCardsToPile(cards.map(Number), Number(gameId));
 
   res.sendStatus(200);
 });

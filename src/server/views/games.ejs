@@ -138,7 +138,7 @@
   // Handle play button click
   playBtn.addEventListener('click', () => {
     const selected = Array.from(document.querySelectorAll('.card-checkbox:checked'))
-      .map(cb => cb.value);
+      .map(cb => Number(cb.value));
 
     // Get the pile ID (set this appropriately for your game)
     // For example, if you have a hidden input or JS variable:

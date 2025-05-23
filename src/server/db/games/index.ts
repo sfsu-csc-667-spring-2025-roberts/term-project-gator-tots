@@ -257,25 +257,19 @@ export const dealCards = async (gameId: number) => {
 };
 
 export async function moveCardsToPile(
-  cardIds: number[],
+  cardRanks: number[],
   game_card_pile_game_card_pile_id: number,
 ) {
-  // Get the card ranks before moving
-  const cardRanks = await db.any(
-    `SELECT card_id, card_rank FROM card WHERE card_id = ANY($1)`,
-    [cardIds],
-  );
-
-  // Move the cards
+  if (!cardRanks || cardRanks.length === 0) {
+    // Nothing to move, just return
+    return;
+  }
   await db.none(
     `UPDATE card
-     SET user_user_id = NULL, game_card_pile_game_card_pile_id = $2
-     WHERE card_id = ANY($1)`,
-    [cardIds, game_card_pile_game_card_pile_id],
+     SET user_user_id = 0, game_card_pile_game_card_pile_id = $2
+     WHERE card_rank = ANY($1)`,
+    [cardRanks, game_card_pile_game_card_pile_id],
   );
-
-  // Return the card ranks for further use (e.g., logging, chat message, etc.)
-  return cardRanks;
 }
 
 export async function setCurrentPlayerTurn(gameId: number, userId: number) {
