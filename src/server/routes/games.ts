@@ -3,7 +3,12 @@ import { Request, Response } from "express";
 import { saveChatMessage } from "../db/chat"; // Adjust path as needed
 
 import { Game } from "../db";
-import { getAvailableGames, getGameInfo, setSupposedRank } from "../db/games";
+import {
+  getAvailableGames,
+  getCurrentPlayer,
+  getGameInfo,
+  setSupposedRank,
+} from "../db/games";
 
 const router = express.Router();
 
@@ -245,6 +250,26 @@ router.post("/:gameId/play", async (req, res) => {
   const nextIndex = (currentIndex + 1) % players.length;
   const nextPlayer = players[nextIndex];
 
+  // Map supposedRank (1-52) to rank name
+  const ranks = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+  ];
+  const rankName = ranks[Math.floor((supposedRank - 1) / 4)];
+  const current_player = await getCurrentPlayer(Number(gameId));
+  const current_players_username = current_player.username;
+
   // Update turn in DB
   await Game.setCurrentPlayerTurn(Number(gameId), nextPlayer.user_id);
   // Update in DB
@@ -252,12 +277,25 @@ router.post("/:gameId/play", async (req, res) => {
   await Game.setSupposedRank(Number(gameId), nextSupposedRank);
   console.log("Supposed rank updated to", nextSupposedRank, "for game", gameId);
 
-  // Notify clients whose turn it is
+  // Send message to room
+  const playerTurnMessage = `${current_players_username} has played ${cards.length} card${cards.length > 1 ? "s" : ""} of rank ${rankName}`;
   io.to(gameId).emit(`chat:message:${gameId}`, {
     sender: { username: "Server" },
-    message: `It's ${nextPlayer.username}'s turn!`,
+    message: playerTurnMessage,
     timestamp: Date.now(),
   });
+  await saveChatMessage(Number(gameId), "Server", playerTurnMessage);
+
+  // Notify clients whose turn it is
+  const playerTurnMessage2 = `It's ${nextPlayer.username}'s turn!`;
+  io.to(gameId).emit(`chat:message:${gameId}`, {
+    sender: { username: "Server" },
+    message: playerTurnMessage2,
+    timestamp: Date.now(),
+  });
+
+  await saveChatMessage(Number(gameId), "Server", playerTurnMessage2);
+
   res.sendStatus(200);
 });
 
