@@ -202,7 +202,15 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     min_players: gameInfo.min_players,
     max_players: gameInfo.max_players,
     userCards,
+    currentPlayer: currentPlayer?.username,
   });
+});
+
+router.post("/:gameId/play", async (req, res) => {
+  const { gameId } = req.params;
+  const { cards } = req.body;
+  // Validate and process the play here...
+  res.sendStatus(200);
 });
 
 router.get("/:gameId/start-test", async (req, res) => {
