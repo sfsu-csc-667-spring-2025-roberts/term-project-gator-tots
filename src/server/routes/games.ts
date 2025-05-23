@@ -4,13 +4,14 @@ import db from "../db/connection";
 import { Game } from "../db";
 import { getAvailableGames, getGameInfo } from "../db/games";
 
-// --- Interfaces for Game State & Cards ---
+// Defines a single card with its ID, suit, and rank.
 export interface Card {
-  id: number; // Unique identifier for the card type (e.g., 0-51)
-  suit: number; // 0:Spades, 1:Hearts, 2:Diamonds, 3:Clubs
-  rank: number; // 1 (Ace) to 13 (King)
+  id: number;
+  suit: number;
+  rank: number;
 }
 
+// Represents a player's state on the server, including their hand.
 export interface PlayerServerState {
   userId: number;
   username: string;
@@ -18,6 +19,7 @@ export interface PlayerServerState {
   cardCount: number;
 }
 
+// Represents the overall state of a game instance on the server.
 export interface GameServerState {
   gameId: number;
   players: PlayerServerState[];
@@ -31,12 +33,14 @@ export interface GameServerState {
   gameStarted: boolean;
 }
 
+// In-memory store for all active game states, keyed by gameId.
 export const activeGames: Map<number, GameServerState> = new Map();
 
 const router = express.Router();
 
+// Helper to get the Socket.IO instance from the app object.
 function getIo(req: express.Request) {
-  return req.app.get("io"); // Your server/index.ts sets 'io' on the app [cite: 57, 71, 227, 241]
+  return req.app.get("io");
 }
 
 router.post("/create", async (request: Request, response: Response) => {
@@ -56,9 +60,7 @@ router.post("/create", async (request: Request, response: Response) => {
     );
     response.redirect(`/games/${gameId}`);
   } catch (error: any) {
-    // Check for unique constraint violation (Postgres error code 23505)
     if (error.code === "23505") {
-      // Render the form again with a warning message
       return response.render("lobby", {
         warning:
           "A game with that name already exists. Please choose another name.",
@@ -81,20 +83,18 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
   const { gameId } = request.params;
   const { password } = request.body;
   // @ts-ignore
-  const username = request.session.username;
+  const joining_username = request.session.username;
   // @ts-ignore
-  const user_id = request.session.user_id;
+  const joining_user_id = request.session.user_id;
 
-  // 1. Check if user is already in a game
-  const user = await Game.getUserById(user_id); // Implement this to get user's current game_room_id
+  const user = await Game.getUserById(joining_user_id);
   if (user && user.game_room_id) {
     return response.redirect(
       "/lobby?warning=You%20are%20already%20in%20a%20game.",
     );
   }
 
-  // 2. Check if game exists and get info
-  const gameInfo = await Game.getGameInfo(Number(gameId)); // Should return { max_players, game_room_password }
+  const gameInfo = await Game.getGameInfo(Number(gameId));
   if (!gameInfo) {
     return response.redirect("/lobby?warning=Game%20not%20found");
   }
@@ -105,7 +105,6 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
     "User entered:",
     password,
   );
-  // 3. Check password
   if (
     (gameInfo.game_room_password && gameInfo.game_room_password !== password) ||
     (gameInfo.game_room_password === null && password)
@@ -113,20 +112,12 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
     return response.redirect("/lobby?warning=Incorrect%20password");
   }
 
-  // 4. Check if game is full
   const currentPlayers = await Game.getPlayerCount(Number(gameId));
   if (currentPlayers.count >= gameInfo.max_players) {
     return response.redirect("/lobby?warning=Game%20full");
   }
 
-  // 5. All checks passed, join the game
-  // @ts-ignore
-  const joining_user_id = request.session.user_id; // Get the ID of the user making the join request
-  // @ts-ignore
-  const joining_username = request.session.username; // Get the username of the user making the join request
-
   try {
-    // Pass the correct user_id to Game.join
     const playerCount = await Game.join(
       joining_user_id,
       Number(gameId),
@@ -144,7 +135,6 @@ router.post("/join/:gameId", async (request: Request, response: Response) => {
       const eventData = {
         players: updatedPlayersList,
         gameId: Number(gameId),
-        // Optional: Add username of who just joined for a more descriptive message
         joinedPlayerUsername: joining_username,
       };
       const targetRoom = gameId.toString();
@@ -185,20 +175,17 @@ router.post("/leave/:gameId", async (request: Request, response: Response) => {
   } else if (user_id) {
     await Game.leaveGame(user_id, numericGameId);
 
-    // Check if any users are left in the game
     const { count } = await Game.getPlayerCount(numericGameId);
     if (count === 0) {
       await Game.deleteGame(numericGameId);
     }
   } else {
-    // If user_id is missing (e.g., sendBeacon with no session), as a fallback, check if the game has any users
     const { count } = await Game.getPlayerCount(numericGameId);
     if (count === 0) {
       await Game.deleteGame(numericGameId);
     }
   }
 
-  // For sendBeacon, don't redirect
   if (request.headers.accept !== "application/json") {
     response.redirect("/lobby");
   } else {
@@ -211,83 +198,82 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   // @ts-ignore
   const username = request.session.username;
   // @ts-ignore
-  const user_id = request.session.user_id; // Logged-in user's ID
+  const user_id = request.session.user_id;
 
-  const gameData = await Game.getGameNameById(Number(gameId)); // gameData will now have .game_room_name and .game_room_host_user_id
+  const gameData = await Game.getGameNameById(Number(gameId));
   const players = await Game.getPlayersInGame(Number(gameId));
-  const gameSettings = await Game.getGameInfo(Number(gameId)); // Contains min_players, max_players
+  const gameSettings = await Game.getGameInfo(Number(gameId));
 
   if (!gameData || !gameData.game_room_name) {
     return response.redirect("/lobby");
   }
 
-  const isHost = user_id === gameData.game_room_host_user_id; // Calculate isHost here
+  const isHost = user_id === gameData.game_room_host_user_id;
 
   response.render("games", {
     gameId,
     username,
-    user_id, // Pass the current logged-in user's ID
+    user_id,
     game_name: gameData.game_room_name,
-    game_room_host_user_id: gameData.game_room_host_user_id, // *** ADD THIS LINE ***
-    isHost, // You can pass the calculated isHost too
+    game_room_host_user_id: gameData.game_room_host_user_id,
+    isHost,
     players,
     min_players: gameSettings.min_players,
     max_players: gameSettings.max_players,
   });
 });
 
-// In src/server/routes/games.ts
-// Make sure your imports, interfaces, activeGames map, and router init are above this.
-
-// Your other working routes (/create, /join, /leave, GET /:gameId, /test-actual-simple)
-
 router.post(
   "/:gameId/start",
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const gameIdParamForLog = req.params.gameId; // For logging before parseInt
     try {
-      const gameId = parseInt(req.params.gameId, 10);
       // @ts-ignore
-      const hostUserId = req.session.user_id;
+      const hostUserId = req.session.user_id as number | undefined;
+      const gameId = parseInt(req.params.gameId, 10);
 
-      // --- Piece 1: hostUserId Validation ---
-      if (!hostUserId) {
-        res.status(401).json({ message: "User not authenticated." });
+      // Validate host user ID from session.
+      if (hostUserId === undefined || hostUserId === null) {
+        res
+          .status(401)
+          .json({
+            message: "User not authenticated or session user ID missing.",
+          });
         return;
       }
 
-      // --- Piece 2: isUserHost Validation ---
-      const isUserHost: boolean = await Game.isHost(hostUserId, gameId); // [cite: 88, 258]
+      // Validate if the requester is the host of the game.
+      const numericHostUserId = Number(hostUserId);
+      const isUserHost: boolean = await Game.isHost(numericHostUserId, gameId);
       if (!isUserHost) {
         res.status(403).json({ message: "Only the host can start the game." });
         return;
       }
 
-      // --- Piece 3: gameRoomInfo Fetch and Validation ---
-      // Define a more complete type for gameRoomInfo if possible, based on your table structure
+      // Fetch game room details.
       const gameRoomInfo: {
         game_room_id: number;
         game_started: boolean;
         min_players: number | null;
-        max_players: number | null /* other fields */;
+        max_players: number | null;
       } | null = await db.oneOrNone(
         "SELECT * FROM game_room WHERE game_room_id = $1",
         [gameId],
-      ); // [cite: 4, 174]
+      );
 
+      // Validate game room existence and status.
       if (!gameRoomInfo) {
         res.status(404).json({ message: "Game room not found." });
         return;
       }
       if (gameRoomInfo.game_started) {
-        // [cite: 4, 174]
         res.status(400).json({ message: "Game already started." });
         return;
       }
 
-      // --- Piece 4: playersFromDb Fetch and Validation ---
-      // Ensure Game.getPlayersInGame is updated to return Promise<{user_id: number, username: string}[]>
+      // Validate player count.
       const playersFromDb: { user_id: number; username: string }[] =
-        await Game.getPlayersInGame(gameId); // [cite: 93, 263]
+        await Game.getPlayersInGame(gameId);
       if (
         !playersFromDb ||
         playersFromDb.length < (gameRoomInfo.min_players || 2)
@@ -298,45 +284,37 @@ router.post(
         return;
       }
 
-      // --- Start of "Step 5" Logic ---
-
-      // 5a. Mark Game as Started in DB
+      // Mark game as started in the database.
       await db.none(
-        "UPDATE game_room SET game_started = TRUE, game_start_time = NOW() WHERE game_room_id = $1", // [cite: 4, 174]
+        "UPDATE game_room SET game_started = TRUE, game_start_time = NOW() WHERE game_room_id = $1",
         [gameId],
       );
 
-      // 5b. Initialize Card Deck and Shuffle
-      const standardDeck: Card[] = []; // Assumes Card interface is defined
+      // Initialize and shuffle a standard 52-card deck.
+      const standardDeck: Card[] = [];
       for (let suit = 0; suit < 4; suit++) {
-        // 0-Spades, 1-Hearts, 2-Diamonds, 3-Clubs
         for (let rank = 1; rank <= 13; rank++) {
-          // 1-Ace to 13-King
-          standardDeck.push({ id: suit * 13 + (rank - 1), suit, rank }); // card.id from 0 to 51
+          standardDeck.push({ id: suit * 13 + (rank - 1), suit, rank });
         }
       }
-      // Fisher-Yates Shuffle
       for (let i = standardDeck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [standardDeck[i], standardDeck[j]] = [standardDeck[j], standardDeck[i]];
       }
 
-      // 5c. `serverPlayers` mapping
+      // Prepare player objects for server-side game state.
       const serverPlayers: PlayerServerState[] = playersFromDb.map((p) => ({
-        // Assumes PlayerServerState interface is defined
         userId: p.user_id,
         username: p.username,
         hand: [],
         cardCount: 0,
       }));
 
-      // 5d. Loop for dealing cards, `card` table insertion, and finding Ace of Spades
       let firstPlayerUserId: number | null = null;
-      const aceOfSpadesCardId = 0; // Card with id:0 (Suit: Spades (0), Rank: Ace (1))
+      const aceOfSpadesCardId = 0; // Assumes Ace of Spades is card with id 0.
 
-      // Clear previous cards for this game from 'card' table.
-      await db.none("DELETE FROM card WHERE deck_deck_id = $1", [gameId]); // [cite: 6, 176]
-
+      // Clear any previous cards for this game and deal new ones.
+      await db.none("DELETE FROM card WHERE deck_deck_id = $1", [gameId]);
       for (let i = 0; i < standardDeck.length; i++) {
         const card = standardDeck[i];
         const playerIndex = i % serverPlayers.length;
@@ -347,45 +325,41 @@ router.post(
           firstPlayerUserId = serverPlayers[playerIndex].userId;
         }
 
-        // Persisting cards: card.card_id is type: "integer", primaryKey: true, NOT serial [cite: 6, 176]
-        // Workaround for unique card_id: (gameId * 1000) + card_type_id (0-51)
+        // Persist card to DB; card_id is not serial, so generate one.
         const cardInstanceIdForDB = gameId * 1000 + card.id;
-
         await db
           .none(
             "INSERT INTO card (card_id, card_rank, user_user_id, deck_deck_id, game_card_pile_game_card_pile_id) VALUES ($1, $2, $3, $4, $5)",
             [
               cardInstanceIdForDB,
-              card.rank, // Storing the 1-13 rank [cite: 6, 176]
-              serverPlayers[playerIndex].userId, // user_user_id [cite: 6, 176]
-              gameId, // deck_deck_id [cite: 6, 176]
-              gameId, // game_card_pile_game_card_pile_id [cite: 6, 176]
+              card.rank,
+              serverPlayers[playerIndex].userId,
+              gameId,
+              gameId,
             ],
           )
           .catch((err) => {
+            // Log error but continue; consider if this should halt game start.
             console.error(
               `Failed to insert card ${card.id} (DB ID ${cardInstanceIdForDB}) for game ${gameId}:`,
               err,
             );
-            // This is a critical error. Consider re-throwing or handling it more robustly.
-            // For now, it logs and continues.
           });
       }
 
-      // 5e. Determine `firstPlayerUserId` Fallback
+      // Fallback if Ace of Spades wasn't found (e.g., very few players/cards).
       if (!firstPlayerUserId && serverPlayers.length > 0) {
-        firstPlayerUserId = serverPlayers[0].userId; // Fallback if Ace of Spades somehow not found
+        firstPlayerUserId = serverPlayers[0].userId;
       }
 
-      // 5f. Update `current_players_turn` in Database
+      // Set the starting player in the database.
       await db.none(
         "UPDATE game_room SET current_players_turn = $1 WHERE game_room_id = $2",
         [firstPlayerUserId, gameId],
-      ); // [cite: 4, 175]
+      );
 
-      // 5g. Initialize In-Memory Game State
+      // Initialize and store the game state in memory.
       const initialServerState: GameServerState = {
-        // Assumes GameServerState interface is defined
         gameId,
         players: serverPlayers,
         currentPlayerTurn: firstPlayerUserId,
@@ -397,13 +371,12 @@ router.post(
         lastPlayBy: null,
         gameStarted: true,
       };
-      activeGames.set(gameId, initialServerState); // Assumes activeGames Map is defined
+      activeGames.set(gameId, initialServerState);
 
-      // 5h. Socket.IO Emissions
-      const io = getIo(req); // Assumes getIo function is defined
+      // Notify all players via Socket.IO that the game has started.
+      const io = getIo(req);
       serverPlayers.forEach((player) => {
         io.to(player.userId.toString()).emit("game:started", {
-          // [cite: 72, 242]
           gameId,
           players: serverPlayers.map((p) => ({
             userId: p.userId,
@@ -416,8 +389,8 @@ router.post(
         });
       });
 
+      // Send a general game state update to the room.
       io.to(gameId.toString()).emit("game:stateUpdate", {
-        // [cite: 73, 243]
         gameId,
         players: serverPlayers.map((p) => ({
           userId: p.userId,
@@ -429,19 +402,19 @@ router.post(
         lastPlayBy: null,
       });
 
-      // 5i. Final Success Response
+      // Send success response to the host who initiated the start.
       res.status(200).json({
         message: "Game started successfully.",
         gameId,
         firstPlayerUserId,
       });
-      return;
+      return; // Explicit return after successful response.
     } catch (error) {
       console.error(
-        `Error in POST /games/${req.params.gameId}/start route:`,
+        `Error in POST /games/${gameIdParamForLog}/start route:`, // Use gameIdParamForLog for safety.
         error,
       );
-      next(error); // Pass error to error handling middleware
+      next(error); // Pass error to Express error handling middleware.
     }
   },
 );
