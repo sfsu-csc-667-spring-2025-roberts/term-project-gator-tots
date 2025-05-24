@@ -1,3 +1,7 @@
+Group Number: 6
+Group Name: Gator Tots
+Team Members: John Bagwell, Meera Shiroya, Rathang Pandit, Luis Espinosa
+
 Gator Tots BS ReadMe
 
 How to Migrate GatorTotsDb after Postgress install
@@ -15,45 +19,3 @@ How to Migrate GatorTotsDb after Postgress install
    npm run db:migrate
 5. Done
 
-TO-DO:
-
-~~- Implement game creation feature~~
-
-~~- create field where game instances show in lobby with host and join buttons~~
-~~- Show game instance with 'Game Name' and players (x/y) where x is current number of~~
-~~players and y is the max.~~ - password protected games would be denoted with a _, e.g. Game Lobby 1_ (3/8)
-~~- create game-creation form~~
-~~- Game Name: String~~
-~~- Password (optional): String~~
-~~- Min players (minimum 3): integer~~
-~~- Max Players (maximum 8): integer~~
-~~- Submit button 'Create Game'~~
-~~- make sure data is added to db upon creation~~
-~~- route game join and password prompt if game is protected~~
-
-- add 'start game' feature which initializes start of game
-
-  - alternative: only have num_players field and game starts automatically when desired number of
-    players is reached.
-
-- Implement game-flow and game-logic
-
-  - seat players in order of join
-  - once minimum number of players joined, host can 'start game' (see alternative)
-  - all cards of one deck are distributed among players in clockwise order (ascending order after the host), starting with host
-  - player with ace of spades is prompted to go with the first turn
-    - player has to play 1-4 cards
-  - game will tell lobby in chat how many cards were played and which card it's supposed to be
-  - the order of turns is also ascending order after the first player's turn
-  - there will be a 'Bullshit' button where any other player can call a 'bluff'
-  - implement bluff check logic
-    - if (bluff)
-      -player who played cards inherits stack of cards
-    - else if
-      - player who called bluff inherits stack of cards
-  - once a player has 0 cards, they are declared the winner.
-  - winner is declared in chat by game server
-
-  - (Game instance is deleted from db?)
-
-~~- Implement chat for each game lobby~~
