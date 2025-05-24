@@ -54,7 +54,7 @@ router.post("/login", async (request: Request, response: Response) => {
     const user = await db.oneOrNone(
       "SELECT game_room_id FROM users WHERE user_id = $1",
       // @ts-ignore
-      [request.session.user_id],
+      [user_id],
     );
 
     // If user is already in a game, redirect to game_room instead of lobby

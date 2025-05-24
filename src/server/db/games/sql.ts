@@ -13,8 +13,9 @@ INSERT INTO game_room (
   game_room_name,
   min_players,
   max_players,
-  game_room_password
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+  game_room_password,
+  current_supposed_rank
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1)
 RETURNING game_room_id`;
 
 export const ADD_PLAYER = `
@@ -46,4 +47,28 @@ WHERE user_id = $(userId)
 RETURNING (
   SELECT COUNT(*) FROM users WHERE game_room_id = $(gameId)
 ) AS playerCount
+`;
+
+export const GAME_START_SQL = `
+INSERT INTO card (game_card_pile_game_card_pile_id, user_user_id, deck_deck_id, card_rank)
+SELECT
+  0,           -- game_card_pile_game_card_pile_id
+  0,                   -- user_user_id (unassigned)
+  $(gameId),           -- deck_deck_id (or use the correct deck id if different)
+  ROW_NUMBER() OVER (ORDER BY random()) -- card_rank: 1-52 in random order
+FROM generate_series(1, 52)
+`;
+
+export const AVAILABLE_CARD_COUNT = `
+SELECT COUNT(*)
+FROM card
+WHERE deck_deck_id = $(gameId)
+AND game_card_pile_game_card_pile_id = 0
+AND user_user_id = 0
+`;
+
+export const SET_FIRST_PLAYER = `
+UPDATE game_room
+SET current_players_turn = $(firstTurnPlayer)
+WHERE game_room_id = $(gameId)
 `;

@@ -15,6 +15,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     ON CONFLICT (game_card_pile_id) DO NOTHING;
   `);
 
+  // Insert user 0 for game admin
+  pgm.sql(`INSERT INTO users (user_id) VALUES (0)`);
+
   // Insert the lobby into the game_room table
   pgm.sql(`
     INSERT INTO game_room (

@@ -24,6 +24,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     game_started: { type: "boolean", default: false },
     game_start_time: { type: "timestamp" },
     current_players_turn: { type: "integer" },
+    current_supposed_rank: { type: "integer", default: 1 },
+    last_played_cards: { type: "integer[]" },
+    last_played_user_id: { type: "integer" },
   });
 
   pgm.createTable("users", {
@@ -36,7 +39,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   });
 
   pgm.createTable("card", {
-    card_id: { type: "integer", primaryKey: true },
     card_rank: { type: "integer" },
     user_user_id: { type: "integer", notNull: true },
     deck_deck_id: { type: "integer", notNull: true },

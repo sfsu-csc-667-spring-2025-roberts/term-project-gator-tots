@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Gator Tot's BS Game Lobby</title>
   <%- include('shared/head') %>
-  <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -27,17 +27,69 @@
               <% }); %>
           </ul>
         </div>
-        <button class="start-btn" <% if (players.length < min_players) { %>
-          disabled
-          title="Need at least <%= min_players %> players to start"
-            <% } %>>
-              Start Game
-        </button>
+
+        <h2 style="color:#2c3e50;">
+          Current Turn: <%= currentPlayer %>
+        </h2>
+        <% if (isHost) { %>
+          <button id="start-btn" class="start-btn" <% if (players.length < min_players) { %>
+            disabled
+            title="Need at least <%= min_players %> players to start"
+              <% } %>>
+                Start Game
+          </button>
+          <% } %>
+            <button id="bs-btn"
+              style="background-color: <%= (username !== lastPlayedUser) ? '#e74c3c' : '#ccc' %>; color: white;"
+              <% if (username===lastPlayedUser) { %>disabled<% } %>>
+                Bullshit!
+            </button>
+
+            <div>
+              <h2>Your Cards:</h2>
+              <% function rankOrder(cardNum) { return Math.floor((cardNum - 1) / 4); } function suitOrder(cardNum) {
+                return (cardNum - 1) % 4; } const sortedCards=userCards.slice().sort((a, b)=> {
+                const rankDiff = rankOrder(a.card_rank) - rankOrder(b.card_rank);
+                return rankDiff !== 0 ? rankDiff : suitOrder(a.card_rank) - suitOrder(b.card_rank);
+                });
+                function cardName(cardNum) {
+                const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+                const suits = ["s", "c", "d", "h"];
+                const zeroBased = cardNum - 1;
+                const rank = ranks[Math.floor(zeroBased / 4)];
+                const suit = suits[zeroBased % 4];
+                return rank + suit;
+                }
+                %>
+                <ul id="my-cards">
+                  <% sortedCards.forEach(function(card) { %>
+                    <li>
+                      <label>
+                        <input type="checkbox" name="selectedCards" value="<%= card.card_rank %>"
+                          class="card-checkbox" />
+                        <%= cardName(card.card_rank) %> (<%= card.card_rank %>)
+                      </label>
+                    </li>
+                    <% }); %>
+                </ul>
+                <button id="play-cards-btn" <% if (username !==currentPlayer) { %>disabled<% } %>
+                    >
+                    Play Selected Cards
+                </button>
+                <% if (username !==currentPlayer) { %>
+                  <div style="color: #888; font-size: 0.9em;">It's <%= currentPlayer %>'s turn.</div>
+                  <% } %>
+                    <h3 id="supposed-card">
+                      Supposed Card:
+                      <%= ["A", "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J" , "Q" , "K"
+                        ][Math.floor((supposedRank - 1) / 4)] %>
+                    </h3>
+
+            </div>
   </div>
-
-
-  
 </body>
+
+
 
 <div id="chat-window">
   <ul id="chat-messages"></ul>
@@ -49,16 +101,17 @@
 <script>
   const roomId = "<%= gameId %>";
   const socket = io();
+  socket.emit("joinRoom", roomId);
 
   // Listen for new messages
-  socket.on(`chat:message:${roomId}`, function(data) {
+  socket.on(`chat:message:${roomId}`, function (data) {
     const li = document.createElement("li");
     li.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.sender.username}: ${data.message}`;
     document.getElementById("chat-messages").appendChild(li);
   });
 
   // Send message
-  document.getElementById("chat-form").addEventListener("submit", function(e) {
+  document.getElementById("chat-form").addEventListener("submit", function (e) {
     e.preventDefault();
     const input = document.getElementById("chat-input");
     fetch(`/chat/${roomId}`, {
@@ -79,6 +132,82 @@
         document.getElementById("chat-messages").appendChild(li);
       });
     });
+
+  // Limit selection to 4 cards
+  const checkboxes = document.querySelectorAll('.card-checkbox');
+  const playBtn = document.getElementById('play-cards-btn');
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      const checked = document.querySelectorAll('.card-checkbox:checked');
+      playBtn.disabled = checked.length === 0 || checked.length > 4;
+      // Prevent selecting more than 4
+      if (checked.length > 4) {
+        cb.checked = false;
+        playBtn.disabled = true;
+        alert("You can only select up to 4 cards.");
+      }
+    });
+  });
+
+  // Handle play button click
+  playBtn.addEventListener('click', () => {
+    const selected = Array.from(document.querySelectorAll('.card-checkbox:checked'))
+      .map(cb => Number(cb.value));
+
+    // Get the pile ID (set this appropriately for your game)
+    // For example, if you have a hidden input or JS variable:
+    // const gameCardPileId = document.getElementById('pile-id').value;
+    // Or, if you know the pile ID in JS:
+    const gameCardPileId = roomId; // <-- Replace with your actual pile ID logic
+
+    fetch(`/games/<%= gameId %>/play`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cards: selected, pileId: gameCardPileId }),
+    }).then(res => {
+      if (res.ok) {
+        // Optionally, clear selection
+        checkboxes.forEach(cb => cb.checked = false);
+        playBtn.disabled = true;
+      }
+    });
+  });
+
+  document.getElementById('bs-btn').addEventListener('click', function () {
+    fetch(`/games/<%= gameId %>/bs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    }).then(res => {
+      if (res.ok) {
+        alert("You called Bullshit!");
+      }
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const startBtn = document.getElementById("start-btn");
+    if (startBtn) {
+      startBtn.addEventListener("click", function () {
+        fetch(`/games/<%= gameId %>/start-test`, {
+          method: "GET"
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              alert("Game started!");
+            } else {
+              alert("Failed to start game: " + (data.error || "Unknown error"));
+            }
+          })
+          .catch(() => alert("Failed to start game."));
+      });
+    }
+  });
 </script>
+
+
+
+<script src="/js/game.js"></script>
 
 </html>
