@@ -314,6 +314,27 @@ router.post("/:gameId/play", async (req, res) => {
 
   await saveChatMessage(Number(gameId), "Server", playerTurnMessage2);
 
+  // After updating the game state (e.g., after a play or BS call)
+  const userCards = await Game.getUserCards(user_id, Number(gameId));
+  const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
+  const gameRoom = await Game.getGameRoomFields(Number(gameId), [
+    "last_played_user_id",
+  ]);
+  let lastPlayedUser = null;
+  if (gameRoom.last_played_user_id) {
+    const user = await Game.getUserById(gameRoom.last_played_user_id);
+    lastPlayedUser = user.username;
+  }
+
+  io.to(gameId).emit("game:update", {
+    players,
+    gameInfo,
+    userCards,
+    currentPlayer,
+    lastPlayedUser,
+    // ...add any other state you want clients to have
+  });
+
   res.sendStatus(200);
 });
 
