@@ -15,6 +15,20 @@ socket.on("game:update", (data) => {
   getPlayersInGame(data.players);
 });
 
+socket.on("game:winner", ({ winner }) => {
+  const winnerMessageElem = document.getElementById("winner-message");
+  if (winnerMessageElem) {
+    winnerMessageElem.textContent = `${winner} has won the game!`;
+  }
+  const gameOverlayElem = document.getElementById("game-overlay");
+  if (gameOverlayElem) {
+    gameOverlayElem.style.display = "flex";
+  }
+  document
+    .querySelectorAll("#play-cards-btn, #bs-btn")
+    .forEach((btn) => (btn.disabled = true));
+});
+
 socket.on("game:supposedRank", function (data) {
   const ranks = [
     "A",

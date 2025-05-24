@@ -326,8 +326,9 @@ router.post("/:gameId/play", async (req, res) => {
     lastPlayedUser = user.username;
   }
 
+  console.log("current players num cards: " + userCards.length);
   // After moving cards to pile and updating last played...
-  if (userCards.length === 0) {
+  if (Number(userCards.length) === 0) {
     // Announce winner to all players
     io.to(gameId).emit("game:winner", { winner: username });
 

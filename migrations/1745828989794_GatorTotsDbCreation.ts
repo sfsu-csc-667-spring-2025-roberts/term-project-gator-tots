@@ -27,6 +27,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     current_supposed_rank: { type: "integer", default: 1 },
     last_played_cards: { type: "integer[]" },
     last_played_user_id: { type: "integer" },
+    winner_user_id: { type: "integer" },
   });
 
   pgm.createTable("users", {
