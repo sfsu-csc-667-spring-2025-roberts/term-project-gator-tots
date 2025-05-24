@@ -239,23 +239,6 @@ router.post("/:gameId/play", async (req, res) => {
   let nextSupposedRank = supposedRank + 4;
   if (nextSupposedRank > 52) nextSupposedRank = 1;
 
-  // Move cards to pile
-  await Game.moveCardsToPile(cards.map(Number), Number(gameId));
-  // Update last played user and cards
-  await Game.setLastPlayed(
-    Number(gameId),
-    gameInfo.current_players_turn,
-    cards.map(Number),
-  );
-
-  // --- Rotate turn to next player ---
-  const players = await Game.getPlayersInGame(Number(gameId)); // Should be ordered by join time/seat
-  // @ts-ignore
-  const user_id = req.session.user_id;
-  const currentIndex = players.findIndex((p) => p.user_id === user_id);
-  const nextIndex = (currentIndex + 1) % players.length;
-  const nextPlayer = players[nextIndex];
-
   // Map supposedRank (1-52) to rank name
   const ranks = [
     "A",
@@ -273,6 +256,23 @@ router.post("/:gameId/play", async (req, res) => {
     "K",
   ];
   const rankName = ranks[Math.floor((supposedRank - 1) / 4)];
+
+  // Move cards to pile
+  await Game.moveCardsToPile(cards.map(Number), Number(gameId));
+  // Update last played user and cards
+  await Game.setLastPlayed(
+    Number(gameId),
+    gameInfo.current_players_turn,
+    cards.map(Number),
+  );
+  // --- Rotate turn to next player ---
+  const players = await Game.getPlayersInGame(Number(gameId)); // Should be ordered by join time/seat
+  // @ts-ignore
+  const user_id = req.session.user_id;
+  const currentIndex = players.findIndex((p) => p.user_id === user_id);
+  const nextIndex = (currentIndex + 1) % players.length;
+  const nextPlayer = players[nextIndex];
+
   const current_player = await getCurrentPlayer(Number(gameId));
   const current_players_username = current_player.username;
 
@@ -329,20 +329,81 @@ router.get("/:gameId/start-test", async (req, res) => {
   }
 });
 
-router.post("/:gameId/bs", async (req, res) => {
-  const { gameId } = req.params;
-  // @ts-ignore
-  const user_id = req.session.user_id;
-  // TODO: Implement your bluff-checking logic here!
-  // For now, just broadcast a message:
-  const io = req.app.get("io");
-  const user = await Game.getUserById(user_id);
-  io.to(gameId).emit(`chat:message:${gameId}`, {
-    sender: { username: "Server" },
-    message: `${user.username} called Bullshit!`,
-    timestamp: Date.now(),
+router.post("/:gameId/bs", (request: Request, response: Response) => {
+  (async () => {
+    const io = request.app.get("io");
+
+    const { gameId } = request.params;
+    // @ts-ignore
+    const user_id = request.session.user_id;
+
+    // Get game info
+    const gameInfo = await Game.getGameInfo(Number(gameId));
+    const supposedRank = gameInfo.current_supposed_rank;
+
+    // Get last played cards and user
+    const {
+      last_played_cards,
+      last_played_user_id,
+      game_card_pile_game_card_pile_id,
+    } = await Game.getGameRoomFields(Number(gameId), [
+      "last_played_cards",
+      "last_played_user_id",
+      "game_card_pile_game_card_pile_id",
+    ]);
+
+    if (!last_played_cards || last_played_cards.length === 0) {
+      response.status(400).json({ error: "No cards to challenge." });
+      return;
+    }
+
+    // Check if all cards match the supposed rank
+    const allMatch = last_played_cards.every(
+      (cardRank: number) =>
+        Math.floor((cardRank - 1) / 4) === Math.floor((supposedRank - 1) / 4),
+    );
+
+    // Get all cards in the pile
+    const pileCards = await Game.getPileCards(Number(gameId)); // Should return array of card IDs
+
+    // Decide who gets the pile
+    let loser_id;
+    if (allMatch) {
+      loser_id = user_id; // Caller gets pile
+    } else {
+      loser_id = last_played_user_id; // Last player gets pile
+    }
+
+    // Move all pile cards to the loser
+    if (pileCards.length > 0) {
+      await Game.giveCardsToUser(loser_id, pileCards);
+    }
+
+    // Clear the pile (optional, if you want)
+    // await Game.clearPile(game_card_pile_game_card_pile_id);
+
+    // Announce result
+    const caller = await Game.getUserById(user_id);
+    const lastPlayer = await Game.getUserById(last_played_user_id);
+    let message;
+    if (allMatch) {
+      message = `${caller.username} called Bullshit, but ${lastPlayer.username} told the truth! ${caller.username} takes the pile.`;
+    } else {
+      message = `${caller.username} called Bullshit and was correct! ${lastPlayer.username} takes the pile.`;
+    }
+
+    io.to(gameId).emit(`chat:message:${gameId}`, {
+      sender: { username: "Server" },
+      message,
+      timestamp: Date.now(),
+    });
+    await saveChatMessage(Number(gameId), "Server", message);
+
+    response.sendStatus(200);
+  })().catch((err) => {
+    console.error(err);
+    response.status(500).json({ error: "Internal server error" });
   });
-  res.sendStatus(200);
 });
 
 export default router;

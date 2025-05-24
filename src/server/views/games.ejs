@@ -48,17 +48,17 @@
 
             <div>
               <h2>Your Cards:</h2>
-              <% function rankOrder(cardNum) { return Math.floor((cardNum - 1) % 13); } function suitOrder(cardNum) {
-                return Math.floor((cardNum - 1) / 13); } const sortedCards=userCards.slice().sort((a, b)=> {
+              <% function rankOrder(cardNum) { return Math.floor((cardNum - 1) / 4); } function suitOrder(cardNum) {
+                return (cardNum - 1) % 4; } const sortedCards=userCards.slice().sort((a, b)=> {
                 const rankDiff = rankOrder(a.card_rank) - rankOrder(b.card_rank);
                 return rankDiff !== 0 ? rankDiff : suitOrder(a.card_rank) - suitOrder(b.card_rank);
                 });
                 function cardName(cardNum) {
                 const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-                const suits = ["s", "c", "h", "d"];
+                const suits = ["s", "c", "d", "h"];
                 const zeroBased = cardNum - 1;
-                const rank = ranks[zeroBased % 13];
-                const suit = suits[Math.floor(zeroBased / 13)];
+                const rank = ranks[Math.floor(zeroBased / 4)];
+                const suit = suits[zeroBased % 4];
                 return rank + suit;
                 }
                 %>
@@ -68,7 +68,7 @@
                       <label>
                         <input type="checkbox" name="selectedCards" value="<%= card.card_rank %>"
                           class="card-checkbox" />
-                        <%= cardName(card.card_rank) %>
+                        <%= cardName(card.card_rank) %> (<%= card.card_rank %>)
                       </label>
                     </li>
                     <% }); %>

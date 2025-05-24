@@ -300,6 +300,33 @@ export async function setCurrentPlayerTurn(gameId: number, userId: number) {
   );
 }
 
+// Get specific fields from game_room
+export const getGameRoomFields = async (gameId: number, fields: string[]) => {
+  const fieldList = fields.join(", ");
+  return db.one(`SELECT ${fieldList} FROM game_room WHERE game_room_id = $1`, [
+    gameId,
+  ]);
+};
+
+// Get all cards in the pile
+export const getPileCards = async (pileId: number) => {
+  return db
+    .any(
+      `SELECT card_rank FROM card WHERE game_card_pile_game_card_pile_id = $1`,
+      [pileId],
+    )
+    .then((cards) => cards.map((c) => Number(c.card_rank)));
+};
+
+// Give cards to a user
+export const giveCardsToUser = async (userId: number, cardIds: number[]) => {
+  if (cardIds.length === 0) return;
+  return db.none(
+    `UPDATE card SET user_user_id = $1, game_card_pile_game_card_pile_id = 0 WHERE card_rank = ANY($2)`,
+    [userId, cardIds],
+  );
+};
+
 export default {
   create,
   join,
@@ -321,4 +348,7 @@ export default {
   moveCardsToPile,
   setCurrentPlayerTurn,
   setLastPlayed,
+  getPileCards,
+  giveCardsToUser,
+  getGameRoomFields,
 };
