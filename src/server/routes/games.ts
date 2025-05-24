@@ -284,7 +284,8 @@ router.post("/:gameId/play", async (req, res) => {
   const currentIndex = players.findIndex((p) => p.user_id === user_id);
   const nextIndex = (currentIndex + 1) % players.length;
   const nextPlayer = players[nextIndex];
-
+  // @ts-ignore
+  const username = req.session.username;
   const current_player = await getCurrentPlayer(Number(gameId));
   const current_players_username = current_player.username;
 
@@ -314,7 +315,6 @@ router.post("/:gameId/play", async (req, res) => {
 
   await saveChatMessage(Number(gameId), "Server", playerTurnMessage2);
 
-  // After updating the game state (e.g., after a play or BS call)
   const userCards = await Game.getUserCards(user_id, Number(gameId));
   const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
   const gameRoom = await Game.getGameRoomFields(Number(gameId), [
@@ -324,6 +324,15 @@ router.post("/:gameId/play", async (req, res) => {
   if (gameRoom.last_played_user_id) {
     const user = await Game.getUserById(gameRoom.last_played_user_id);
     lastPlayedUser = user.username;
+  }
+
+  // After moving cards to pile and updating last played...
+  if (userCards.length === 0) {
+    // Announce winner to all players
+    io.to(gameId).emit("game:winner", { winner: username });
+
+    // Optionally, update game state in DB to mark as finished
+    await Game.setGameFinished(Number(gameId), user_id);
   }
 
   io.to(gameId).emit("game:update", {

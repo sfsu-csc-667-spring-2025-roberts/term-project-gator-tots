@@ -327,6 +327,13 @@ export const giveCardsToUser = async (userId: number, cardRanks: number[]) => {
   );
 };
 
+export const setGameFinished = async (gameId: number, winnerId: number) => {
+  return db.none(
+    `UPDATE game_room SET winner_user_id = $1 WHERE game_room_id = $2`,
+    [winnerId, gameId],
+  );
+};
+
 export default {
   create,
   join,
@@ -351,4 +358,5 @@ export default {
   getPileCards,
   giveCardsToUser,
   getGameRoomFields,
+  setGameFinished,
 };
