@@ -184,6 +184,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   const userCards = await Game.getUserCards(user_id, Number(gameId));
   const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
   let current_supposed_rank = await Game.getSupposedRank(Number(gameId));
+  console.log("current_supposed_rank" + current_supposed_rank);
 
   if (!game || !game.game_room_name) {
     // Game not found, redirect to lobby or show an error
@@ -339,7 +340,11 @@ router.post("/:gameId/bs", (request: Request, response: Response) => {
 
     // Get game info
     const gameInfo = await Game.getGameInfo(Number(gameId));
-    const supposedRank = gameInfo.current_supposed_rank;
+    const current_supposed_rank = gameInfo.current_supposed_rank;
+
+    let prevSupposedRank = current_supposed_rank - 4;
+    if (prevSupposedRank < 1) prevSupposedRank += 52;
+    const prevSupposedRankIndex = Math.floor((prevSupposedRank - 1) / 4);
 
     // Get last played cards and user
     const {
@@ -360,11 +365,11 @@ router.post("/:gameId/bs", (request: Request, response: Response) => {
     // Check if all cards match the supposed rank
     const allMatch = last_played_cards.every(
       (cardRank: number) =>
-        Math.floor((cardRank - 1) / 4) === Math.floor((supposedRank - 1) / 4),
+        Math.floor((cardRank - 1) / 4) === prevSupposedRankIndex,
     );
 
     // Get all cards in the pile
-    const pileCards = await Game.getPileCards(Number(gameId)); // Should return array of card IDs
+    const pileCards = await Game.getPileCards(game_card_pile_game_card_pile_id); // Should return array of card IDs
 
     // Decide who gets the pile
     let loser_id;

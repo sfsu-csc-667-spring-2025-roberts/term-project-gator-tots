@@ -319,11 +319,11 @@ export const getPileCards = async (pileId: number) => {
 };
 
 // Give cards to a user
-export const giveCardsToUser = async (userId: number, cardIds: number[]) => {
-  if (cardIds.length === 0) return;
+export const giveCardsToUser = async (userId: number, cardRanks: number[]) => {
+  if (cardRanks.length === 0) return;
   return db.none(
     `UPDATE card SET user_user_id = $1, game_card_pile_game_card_pile_id = 0 WHERE card_rank = ANY($2)`,
-    [userId, cardIds],
+    [userId, cardRanks],
   );
 };
 
