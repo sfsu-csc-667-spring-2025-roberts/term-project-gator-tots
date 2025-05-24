@@ -183,6 +183,15 @@ router.get("/:gameId", async (request: Request, response: Response) => {
   const gameInfo = await Game.getGameInfo(Number(gameId));
   const userCards = await Game.getUserCards(user_id, Number(gameId));
   const currentPlayer = await Game.getCurrentPlayer(Number(gameId));
+  const gameRoom = await Game.getGameRoomFields(Number(gameId), [
+    "last_played_user_id",
+  ]);
+  let lastPlayedUser = null;
+  if (gameRoom.last_played_user_id) {
+    const user = await Game.getUserById(gameRoom.last_played_user_id);
+    lastPlayedUser = user.username;
+  }
+
   let current_supposed_rank = await Game.getSupposedRank(Number(gameId));
   console.log("current_supposed_rank" + current_supposed_rank);
 
@@ -200,6 +209,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     userCards,
     currentPlayer,
     current_supposed_rank,
+    lastPlayedUser,
   });
 
   // Emit a server message about whose turn it is
@@ -222,6 +232,7 @@ router.get("/:gameId", async (request: Request, response: Response) => {
     userCards,
     currentPlayer: currentPlayer?.username,
     supposedRank: gameInfo.current_supposed_rank,
+    lastPlayedUser,
   });
 });
 
