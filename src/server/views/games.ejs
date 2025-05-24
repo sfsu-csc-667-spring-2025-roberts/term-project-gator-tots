@@ -103,6 +103,13 @@
   const socket = io();
   socket.emit("joinRoom", roomId);
 
+  // Listen for game state updates
+socket.on("game:update", (state) => {
+  // Update the UI with the new state
+  // For example, re-render player list, cards, turn info, etc.
+  updateGameUI(state);
+});
+
   // Listen for new messages
   socket.on(`chat:message:${roomId}`, function (data) {
     const li = document.createElement("li");
